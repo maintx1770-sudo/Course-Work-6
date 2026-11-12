@@ -1,4 +1,4 @@
-# COURSE WORK 6
+#  Coursework_Topic 6
 ## News Topic Classification Using Transformer-Based Models
 
 ## 1. Giới thiệu
