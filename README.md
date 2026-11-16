@@ -1,4 +1,4 @@
-#  Coursework_Topic 6
+# Coursework_Topic 6
 ## News Topic Classification Using Transformer-Based Models
 
 ## 1. Giới thiệu
@@ -89,15 +89,15 @@ Baseline được sử dụng để có một mô hình tham chiếu trước kh
 
 ```text
 Input Text
-     ↓
+    ↓
 Tokenizer
-     ↓
+    ↓
 Pretrained Transformer
-     ↓
+    ↓
 Frozen Encoder
-     ↓
+    ↓
 Classification Head
-     ↓
+    ↓
 Prediction
 ```
 
@@ -107,13 +107,13 @@ Trong phương pháp này, các tham số của Transformer được giữ nguy�
 
 ```text
 Input Text
-     ↓
+    ↓
 Tokenizer
-     ↓
+    ↓
 Pretrained Transformer
-     ↓
+    ↓
 Classification Head
-     ↓
+    ↓
 Prediction
 ```
 
