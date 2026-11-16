@@ -2,11 +2,7 @@
 
 ## News Topic Classification Using Transformer-Based Models
 
-**Mục tiêu:** mỗi thành viên hoàn thành cụm việc của mình trong một buổi làm việc, hạn chế quay lại nhiều ngày. Phần phụ thuộc output được tích hợp vào **Thứ 5**.
 
-
-
----
 
 ## 1. Nội dung Coursework Topic 6
 
