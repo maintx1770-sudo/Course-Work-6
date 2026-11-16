@@ -33,7 +33,7 @@
 
 ------------------------------------------------------------------------
 
-# 2. Phân công theo package
+# 2. Phân công theo NGÀY
 
 ## MAI --- REPOSITORY PACKAGE
 
