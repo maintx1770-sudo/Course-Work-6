@@ -75,7 +75,7 @@ repository structure
 
 ### Ngày
 report/
-├── report.md
+      └── report.md
 
 Kiểm tra lần cuối để đảm bảo README khớp với cách chạy thực tế.
 
