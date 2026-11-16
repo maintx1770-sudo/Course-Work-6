@@ -2,10 +2,8 @@
 
 ## News Topic Classification Using Transformer-Based Models
 
-**Thời gian:** Thứ 2 → Thứ 5\
-**Nguyên tắc:** Mỗi thành viên nhận một package hoàn chỉnh gồm code +
-notebook + docs + output liên quan, cố gắng hoàn thành trong một buổi
-làm việc. Thứ 5 chỉ dùng để tích hợp, chạy lại và nộp.
+**Thời gian:** 
+
 
 ------------------------------------------------------------------------
 
@@ -39,7 +37,7 @@ làm việc. Thứ 5 chỉ dùng để tích hợp, chạy lại và nộp.
 
 ## MAI --- REPOSITORY PACKAGE
 
-### Thứ 2
+### Ngày
 
 ``` text
 README.md
@@ -66,7 +64,7 @@ docs/
     -   `results/`
     -   `report/`
 
-### Thứ 5
+### Ngày
 
 ``` text
 README.md
@@ -81,7 +79,7 @@ Kiểm tra lần cuối để đảm bảo README khớp với cách chạy th�
 
 # NGUYỄN CHI --- DATA PACKAGE
 
-### Thứ 2
+### Ngày
 
 ``` text
 src/
@@ -107,7 +105,7 @@ data/
 -   Data exploration
 -   Chuẩn bị dữ liệu cho Baseline và Transformer
 
-### Thứ 5
+### Ngày
 
 ``` text
 src/
@@ -124,7 +122,7 @@ Kiểm tra Data → Prediction pipeline.
 
 # HUỲNH --- BASELINE PACKAGE
 
-### Thứ 2
+### Ngày
 
 ``` text
 src/
@@ -154,7 +152,7 @@ results/
 -   Lưu metrics
 -   Lưu checkpoint nếu cần
 
-### Thứ 5
+### Ngày
 
 ``` text
 results/
@@ -168,7 +166,7 @@ Xác nhận Baseline là bản cuối và sửa lỗi nếu Integration phát hi
 
 # MY --- FROZEN ENCODER PACKAGE
 
-### Thứ 3
+### Ngày
 
 ``` text
 src/
@@ -209,7 +207,7 @@ results/
     -   Trainable Parameters
     -   Model Size
 
-### Thứ 5
+### Ngày
 
 ``` text
 src/
@@ -229,7 +227,7 @@ Xác nhận Frozen Encoder chạy đúng và sửa lỗi nếu Integration phát
 
 # ĐỨC --- FINE-TUNING PACKAGE
 
-### Thứ 3
+### Ngày
 
 ``` text
 src/
@@ -270,7 +268,7 @@ results/
     -   Trainable Parameters
     -   Model Size
 
-### Thứ 5
+### Ngày
 
 ``` text
 src/
@@ -290,7 +288,7 @@ Xác nhận Fine-Tuning chạy đúng và sửa lỗi nếu Integration phát hi
 
 # TRÚC CHI --- EVALUATION + COMPARISON PACKAGE
 
-### Thứ 3
+### Ngày
 
 ``` text
 src/
@@ -332,7 +330,7 @@ docs/
 
 Phân tích các mẫu dự đoán sai.
 
-### Thứ 5
+### Ngày
 
 ``` text
 src/
@@ -371,147 +369,3 @@ Trainable Parameters
 Model Size
 ```
 
-------------------------------------------------------------------------
-
-# 3. Cấu trúc file tổng
-
-``` text
-Course-Work-6/
-│
-├── README.md
-├── requirements.txt
-├── .gitignore
-│
-├── docs/
-│   ├── Define.md
-│   ├── Design.md
-│   │
-│   ├── research/
-│   │   ├── ag_news.md
-│   │   ├── tfidf_logistic_regression.md
-│   │   ├── frozen_encoder.md
-│   │   ├── fine_tuning.md
-│   │   └── evaluation_metrics.md
-│   │
-│   └── results/
-│       ├── error_analysis.md
-│       └── model_comparison.md
-│
-├── data/
-│   ├── raw/
-│   └── processed/
-│
-├── src/
-│   ├── data.py
-│   ├── baseline.py
-│   ├── models.py
-│   ├── train.py
-│   ├── evaluate.py
-│   ├── compare.py
-│   └── predict.py
-│
-├── notebooks/
-│   ├── 01_data_exploration.ipynb
-│   ├── 02_baseline.ipynb
-│   ├── 03_frozen_encoder.ipynb
-│   ├── 04_fine_tuning.ipynb
-│   └── 05_comparison.ipynb
-│
-├── results/
-│   ├── metrics/
-│   ├── figures/
-│   └── checkpoints/
-│
-└── report/
-    ├── report.pdf
-    └── presentation.pdf
-```
-
-------------------------------------------------------------------------
-
-# 4. Dependency
-
-``` text
-NGUYỄN CHI
-Data
-│
-├──────────────┬──────────────┐
-▼              ▼              ▼
-HUỲNH          MY             ĐỨC
-Baseline       Frozen         Fine-Tuning
-               Encoder
-│              │              │
-└──────────────┼──────────────┘
-               ▼
-          TRÚC CHI
-          Evaluation
-               │
-               ▼
-          Comparison
-               │
-               ▼
-             MAI
-       Final Repository Check
-               │
-               ▼
-            CẢ NHÓM
-         Full Integration
-               │
-               ▼
-            SUBMIT
-```
-
-------------------------------------------------------------------------
-
-# 5. Thứ 5 --- Final Integration
-
-``` text
-1. git pull
-2. Kiểm tra structure
-3. Chạy Data pipeline
-4. Chạy Baseline
-5. Chạy Frozen Encoder
-6. Chạy Fine-Tuning
-7. Chạy Evaluation
-8. Chạy Prediction
-9. Chạy Comparison
-10. Kiểm tra metrics
-11. Kiểm tra notebooks
-12. Kiểm tra README
-13. Sửa lỗi
-14. git push
-15. Kiểm tra GitHub
-16. Submit
-```
-
-### Final checklist
-
-``` text
-[ ] README.md
-[ ] requirements.txt
-[ ] .gitignore
-[ ] Define.md
-[ ] Design.md
-[ ] data.py
-[ ] baseline.py
-[ ] models.py
-[ ] train.py
-[ ] evaluate.py
-[ ] compare.py
-[ ] predict.py
-[ ] 01_data_exploration.ipynb
-[ ] 02_baseline.ipynb
-[ ] 03_frozen_encoder.ipynb
-[ ] 04_fine_tuning.ipynb
-[ ] 05_comparison.ipynb
-[ ] Baseline metrics
-[ ] Frozen Encoder metrics
-[ ] Fine-Tuning metrics
-[ ] Confusion Matrix
-[ ] Error Analysis
-[ ] Model Comparison
-[ ] Checkpoints
-[ ] Full pipeline chạy được
-[ ] GitHub cập nhật
-[ ] Submit
-```
