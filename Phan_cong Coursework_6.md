@@ -29,7 +29,6 @@
   - Trainable Parameters
   - Model Size
 
-> **Lưu ý:** `docs/Define.md` và `docs/Design.md` đã do **TV1 Mai** hoàn thành trước, nên không phân công lại phần này cho các thành viên khác.
 
 ---
 
