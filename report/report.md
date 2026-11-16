@@ -1,3 +1,6 @@
+# BÁO CÁO COURSEWORK TOPIC 6
+
+```text
 BÁO CÁO COURSEWORK TOPIC 6
 │
 ├── Chương 1. Giới thiệu
