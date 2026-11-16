@@ -1,10 +1,10 @@
-# PHÂN CÔNG COURSEWORK TOPIC 6 (làm từ Thứ 2 đến Thứ 5)
+# PHÂN CÔNG COURSEWORK TOPIC 6 
 
 ## News Topic Classification Using Transformer-Based Models
 
 **Mục tiêu:** mỗi thành viên hoàn thành cụm việc của mình trong một buổi làm việc, hạn chế quay lại nhiều ngày. Phần phụ thuộc output được tích hợp vào **Thứ 5**.
 
-**Cách gọi ngày:** Thứ 2 → Thứ 3 → Thứ 4 → Thứ 5 (**Thứ 5 là ngày cuối, tích hợp và nộp**).
+
 
 ---
 
@@ -39,7 +39,7 @@
 
 # 2. Phân công 6 thành viên
 
-## Thứ 2
+## Thứ 
 
 | Thành viên | Hoàn thành |
 |---|---|
@@ -47,7 +47,7 @@
 | **TV2 Huynh** | `notebooks/02_baseline.ipynb`, xây dựng **TF-IDF + Logistic Regression**, lưu kết quả vào `results/metrics/`, `results/figures/`, tính Accuracy, Precision, Recall, Macro F1-score, Confusion Matrix, Training Time, Inference Time. |
 | **TV6 Nguyễn Chi** | `README.md`, kiểm tra cấu trúc repository, `requirements.txt`, `.gitignore` nếu cần, `docs/` và `results/` đã có đúng thư mục chưa. **Phần còn lại nếu rảnh:** tạo checklist tích hợp và danh sách các file cần kiểm tra trước khi nộp. |
 
-### Output Thứ 2
+### Output Thứ 
 
 - TV1 bàn giao **data pipeline + preprocessing + tokenizer configuration**.
 - TV2 bàn giao **baseline metrics**.
@@ -62,7 +62,7 @@
 
 ---
 
-## Thứ 3
+## Thứ 
 
 | Thành viên | Hoàn thành |
 |---|---|
@@ -107,7 +107,7 @@
 
 ---
 
-# Thứ 4
+# Thứ 
 
 | Thành viên | Hoàn thành |
 |---|---|
@@ -181,7 +181,7 @@ Kiểm tra:
 
 ---
 
-# Thứ 5
+# Thứ 
 
 | Thành viên | Hoàn thành |
 |---|---|
