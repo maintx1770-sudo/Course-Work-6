@@ -73,7 +73,7 @@ repository structure
 
 Kiểm tra repository sau khi các thành viên bắt đầu chạy code.
 
-### Chủ nhật – 22/11
+### 
 
 ```text
 report/report.md
