@@ -147,7 +147,7 @@ Ngoài hiệu năng phân loại, project cũng so sánh:
 
 ---
 
-## 6. Cấu trúc thư mục
+## 6. Cấu trúc thư 
 
 ```text
 Course-Work-6/
@@ -158,7 +158,18 @@ Course-Work-6/
 │
 ├── docs/
 │   ├── Define.md
-│   └── Design.md
+│   ├── Design.md
+│   │
+│   ├── research/
+│   │   ├── ag_news.md
+│   │   ├── tfidf_logistic_regression.md
+│   │   ├── frozen_encoder.md
+│   │   ├── fine_tuning.md
+│   │   └── evaluation_metrics.md
+│   │
+│   └── results/
+│       ├── error_analysis.md
+│       └── model_comparison.md
 │
 ├── data/
 │   ├── raw/
@@ -166,6 +177,7 @@ Course-Work-6/
 │
 ├── src/
 │   ├── data.py
+│   ├── baseline.py
 │   ├── models.py
 │   ├── train.py
 │   ├── evaluate.py
@@ -181,77 +193,144 @@ Course-Work-6/
 │
 ├── results/
 │   ├── metrics/
+│   │   ├── baseline_metrics.csv
+│   │   ├── frozen_encoder_metrics.csv
+│   │   ├── fine_tuning_metrics.csv
+│   │   ├── evaluation_results.csv
+│   │   └── test_predictions.csv
+│   │
 │   ├── figures/
+│   │   ├── confusion_matrix_baseline.png
+│   │   ├── confusion_matrix_frozen_encoder.png
+│   │   ├── confusion_matrix_fine_tuning.png
+│   │   └── model_comparison.png
+│   │
 │   └── checkpoints/
+│       ├── baseline/
+│       ├── frozen_encoder/
+│       └── fine_tuning/
 │
 └── report/
+    ├── report.md
     ├── report.pdf
     └── presentation.pdf
 ```
+Mô tả các thư mục
 
-### Mô tả các thư mục
+docs/
 
-#### `docs/`
+Chứa tài liệu phân tích, nghiên cứu, thiết kế và tổng hợp kết quả của project.
 
-Chứa tài liệu phân tích và thiết kế project.
+docs/
+├── Define.md
+├── Design.md
+├── research/
+│   ├── ag_news.md
+│   ├── tfidf_logistic_regression.md
+│   ├── frozen_encoder.md
+│   ├── fine_tuning.md
+│   └── evaluation_metrics.md
+└── results/
+    ├── error_analysis.md
+    └── model_comparison.md
 
-- `Define.md`: Xác định bài toán, người dùng, input/output, features, constraints và evaluation criteria.
-- `Design.md`: Mô tả kiến trúc hệ thống, modules, data flow, interfaces, milestones và technical risks.
+* Define.md: Xác định bài toán, người dùng, input/output, features, constraints và evaluation criteria.
+* Design.md: Mô tả kiến trúc hệ thống, modules, data flow, interfaces, milestones và technical risks.
+* research/: Chứa các tài liệu nghiên cứu liên quan đến AG News, TF-IDF + Logistic Regression, Frozen Encoder, Fine-Tuning và các phương pháp đánh giá.
+* results/: Chứa phần phân tích và tổng hợp kết quả thực nghiệm.
+    * error_analysis.md: Phân tích các mẫu dự đoán sai.
+    * model_comparison.md: So sánh Baseline, Frozen Encoder và Fine-Tuning.
 
-#### `data/`
+data/
 
 Chứa dữ liệu của project.
 
-```text
 data/
 ├── raw/
 └── processed/
-```
 
-- `raw/`: dữ liệu gốc.
-- `processed/`: dữ liệu sau khi preprocessing.
+* raw/: Dữ liệu AG News gốc.
+* processed/: Dữ liệu sau khi preprocessing, được chuẩn bị để sử dụng cho Baseline và Transformer.
 
-#### `src/`
+src/
 
 Chứa source code chính của project.
 
-- `data.py`: xử lý và chuẩn bị dữ liệu.
-- `models.py`: định nghĩa các mô hình.
-- `train.py`: huấn luyện mô hình.
-- `evaluate.py`: đánh giá mô hình.
-- `compare.py`: so sánh các phương pháp.
-- `predict.py`: thực hiện dự đoán trên dữ liệu mới.
+src/
+├── data.py
+├── baseline.py
+├── models.py
+├── train.py
+├── evaluate.py
+├── compare.py
+└── predict.py
 
-#### `notebooks/`
+* data.py: Load, xử lý và chuẩn bị dữ liệu AG News.
+* baseline.py: Xây dựng và huấn luyện Baseline sử dụng TF-IDF + Logistic Regression.
+* models.py: Định nghĩa và chuẩn bị mô hình Transformer cho Frozen Encoder.
+* train.py: Xây dựng training pipeline và thực hiện Fine-Tuning.
+* evaluate.py: Tính toán các metrics và đánh giá mô hình.
+* compare.py: So sánh Baseline, Frozen Encoder và Fine-Tuning.
+* predict.py: Thực hiện dự đoán trên dữ liệu và tạo kết quả prediction.
 
-Chứa các notebook phục vụ quá trình thực nghiệm:
+notebooks/
 
-- `01_data_exploration.ipynb`: khám phá và kiểm tra dữ liệu.
-- `02_baseline.ipynb`: xây dựng baseline.
-- `03_frozen_encoder.ipynb`: thực nghiệm Frozen Encoder.
-- `04_fine_tuning.ipynb`: thực nghiệm Fine-Tuning.
-- `05_comparison.ipynb`: so sánh kết quả.
+Chứa các notebook phục vụ quá trình khám phá dữ liệu và thực nghiệm.
 
-#### `results/`
+notebooks/
+├── 01_data_exploration.ipynb
+├── 02_baseline.ipynb
+├── 03_frozen_encoder.ipynb
+├── 04_fine_tuning.ipynb
+└── 05_comparison.ipynb
 
-Lưu kết quả thực nghiệm.
+* 01_data_exploration.ipynb: Load, khám phá và kiểm tra dữ liệu AG News.
+* 02_baseline.ipynb: Xây dựng và thực nghiệm Baseline TF-IDF + Logistic Regression.
+* 03_frozen_encoder.ipynb: Thực nghiệm Frozen Encoder.
+* 04_fine_tuning.ipynb: Thực nghiệm Fine-Tuning.
+* 05_comparison.ipynb: Tổng hợp và so sánh kết quả của ba phương pháp.
 
-```text
+results/
+
+Lưu các kết quả thực nghiệm của project.
+
 results/
 ├── metrics/
+│   ├── baseline_metrics.csv
+│   ├── frozen_encoder_metrics.csv
+│   ├── fine_tuning_metrics.csv
+│   ├── evaluation_results.csv
+│   └── test_predictions.csv
+│
 ├── figures/
+│   ├── confusion_matrix_baseline.png
+│   ├── confusion_matrix_frozen_encoder.png
+│   ├── confusion_matrix_fine_tuning.png
+│   └── model_comparison.png
+│
 └── checkpoints/
-```
+    ├── baseline/
+    ├── frozen_encoder/
+    └── fine_tuning/
 
-- `metrics/`: Accuracy, Precision, Recall, F1-score,...
-- `figures/`: biểu đồ và confusion matrix.
-- `checkpoints/`: model đã huấn luyện.
+* metrics/: Lưu các kết quả đánh giá như Accuracy, Precision, Recall, Macro F1-score, Training Time, Inference Time, Trainable Parameters và Model Size.
+* figures/: Lưu các biểu đồ, confusion matrix và hình ảnh so sánh mô hình.
+* checkpoints/: Lưu các model checkpoint trong quá trình thực nghiệm.
 
-#### `report/`
+Các file .csv, .png và checkpoint trong results/ được tạo trong quá trình chạy thực nghiệm. Khi mới tạo repository, có thể sử dụng .gitkeep để giữ cấu trúc thư mục.
 
-Chứa báo cáo và presentation cuối cùng.
+report/
 
----
+Chứa source và các phiên bản cuối cùng của báo cáo và presentation.
+
+report/
+├── report.md
+├── report.pdf
+└── presentation.pdf
+
+* report.md: Source của báo cáo, dùng để chỉnh sửa và cập nhật nội dung.
+* report.pdf: Báo cáo Coursework bản cuối.
+* presentation.pdf: Presentation dùng để trình bày project.
 
 ## 7. Cài đặt
 
