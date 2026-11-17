@@ -219,8 +219,8 @@ Mô tả các thư mục
 
 docs/
 
-Chứa tài liệu phân tích, nghiên cứu, thiết kế và tổng hợp kết quả của project.
-
+Chứa tài liệu phân tích, nghiên cứu, thiết kế và tổng hợp kết quả của 
+```text
 docs/
 ├── Define.md
 ├── Design.md
@@ -233,7 +233,7 @@ docs/
 └── results/
     ├── error_analysis.md
     └── model_comparison.md
-
+```
 * Define.md: Xác định bài toán, người dùng, input/output, features, constraints và evaluation criteria.
 * Design.md: Mô tả kiến trúc hệ thống, modules, data flow, interfaces, milestones và technical risks.
 * research/: Chứa các tài liệu nghiên cứu liên quan đến AG News, TF-IDF + Logistic Regression, Frozen Encoder, Fine-Tuning và các phương pháp đánh giá.
@@ -244,18 +244,18 @@ docs/
 data/
 
 Chứa dữ liệu của project.
-
+```text
 data/
 ├── raw/
 └── processed/
-
+```
 * raw/: Dữ liệu AG News gốc.
 * processed/: Dữ liệu sau khi preprocessing, được chuẩn bị để sử dụng cho Baseline và Transformer.
 
 src/
 
 Chứa source code chính của project.
-
+```text
 src/
 ├── data.py
 ├── baseline.py
@@ -264,7 +264,7 @@ src/
 ├── evaluate.py
 ├── compare.py
 └── predict.py
-
+```
 * data.py: Load, xử lý và chuẩn bị dữ liệu AG News.
 * baseline.py: Xây dựng và huấn luyện Baseline sử dụng TF-IDF + Logistic Regression.
 * models.py: Định nghĩa và chuẩn bị mô hình Transformer cho Frozen Encoder.
@@ -276,14 +276,14 @@ src/
 notebooks/
 
 Chứa các notebook phục vụ quá trình khám phá dữ liệu và thực nghiệm.
-
+```text
 notebooks/
 ├── 01_data_exploration.ipynb
 ├── 02_baseline.ipynb
 ├── 03_frozen_encoder.ipynb
 ├── 04_fine_tuning.ipynb
 └── 05_comparison.ipynb
-
+```
 * 01_data_exploration.ipynb: Load, khám phá và kiểm tra dữ liệu AG News.
 * 02_baseline.ipynb: Xây dựng và thực nghiệm Baseline TF-IDF + Logistic Regression.
 * 03_frozen_encoder.ipynb: Thực nghiệm Frozen Encoder.
@@ -293,7 +293,7 @@ notebooks/
 results/
 
 Lưu các kết quả thực nghiệm của project.
-
+```text
 results/
 ├── metrics/
 │   ├── baseline_metrics.csv
@@ -312,7 +312,7 @@ results/
     ├── baseline/
     ├── frozen_encoder/
     └── fine_tuning/
-
+```
 * metrics/: Lưu các kết quả đánh giá như Accuracy, Precision, Recall, Macro F1-score, Training Time, Inference Time, Trainable Parameters và Model Size.
 * figures/: Lưu các biểu đồ, confusion matrix và hình ảnh so sánh mô hình.
 * checkpoints/: Lưu các model checkpoint trong quá trình thực nghiệm.
@@ -322,12 +322,12 @@ Các file .csv, .png và checkpoint trong results/ được tạo trong quá tr�
 report/
 
 Chứa source và các phiên bản cuối cùng của báo cáo và presentation.
-
+```text
 report/
 ├── report.md
 ├── report.pdf
 └── presentation.pdf
-
+```
 * report.md: Source của báo cáo, dùng để chỉnh sửa và cập nhật nội dung.
 * report.pdf: Báo cáo Coursework bản cuối.
 * presentation.pdf: Presentation dùng để trình bày project.
