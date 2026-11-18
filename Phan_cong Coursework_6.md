@@ -6,84 +6,61 @@
 
 ---
 
-# 1. Nội dung Coursework Topic 6
+# 1. NỘI DUNG COURSEWORK TOPIC 6
 
-- **Baseline:** TF-IDF + Logistic Regression
-- **Frozen Encoder:** Freeze Transformer Encoder, chỉ train Classification Head
-- **Fine-Tuning:** Train Transformer + Classification Head
-- **Dataset:** AG News
-  - World
-  - Sports
-  - Business
-  - Sci/Tech
-- **Evaluation:**
-  - Accuracy
-  - Precision
-  - Recall
-  - Macro F1-score
-  - Confusion Matrix
-  - Training Time
-  - Inference Time
-  - Trainable Parameters
-  - Model Size
-- **Comparison:** Baseline vs Frozen Encoder vs Fine-Tuning
-- **Error Analysis:** Phân tích các mẫu dự đoán sai
+Coursework xây dựng hệ thống **phân loại chủ đề tin tức** trên tập dữ liệu **AG News**, gồm 4 lớp:
+
+- World
+- Sports
+- Business
+- Sci/Tech
+
+Ba phương pháp được triển khai và so sánh:
+
+1. **Baseline:** TF-IDF + Logistic Regression
+2. **Frozen Encoder:** Freeze Transformer Encoder, chỉ train Classification Head
+3. **Fine-Tuning:** Train toàn bộ Transformer + Classification Head
+
+### Evaluation
+
+Các mô hình được đánh giá theo:
+
+- Accuracy
+- Precision
+- Recall
+- Macro F1-score
+- Confusion Matrix
+- Training Time
+- Inference Time
+- Trainable Parameters
+- Model Size
+
+### Comparison
+
+So sánh:
+
+```text
+TF-IDF + Logistic Regression
+          ↓
+Frozen Encoder
+          ↓
+Fine-Tuning
+```
+
+### Error Analysis
+
+Phân tích các mẫu dự đoán sai để xác định:
+
+- Các lớp thường bị nhầm lẫn
+- Nguyên nhân dự đoán sai
+- Đặc điểm của các mẫu khó phân loại
+- Hạn chế của từng phương pháp
 
 ---
 
 # 2. PHÂN CÔNG THEO THÀNH VIÊN
 
-## MAI — REPOSITORY PACKAGE
-
-### Thứ 4 – 18/11
-
-```text
-README.md
-requirements.txt
-.gitignore
-
-docs/
-├── Define.md
-└── Design.md
-```
-
-**Công việc:**
-
-- Hoàn thiện `README.md`
-- Kiểm tra `requirements.txt`
-- Kiểm tra `.gitignore`
-- Kiểm tra cấu trúc repository
-- Kiểm tra `docs/Define.md`
-- Kiểm tra `docs/Design.md`
-- Kiểm tra các thư mục:
-  - `data/`
-  - `src/`
-  - `notebooks/`
-  - `results/`
-  - `report/`
-
-### Thứ 5 – 19/11
-
-```text
-README.md
-requirements.txt
-.gitignore
-repository structure
-```
-
-Kiểm tra repository sau khi các thành viên bắt đầu chạy code.
-
-### 
-
-```text
-report/report.md
-```
-
-Kiểm tra lần cuối để đảm bảo README khớp với cách chạy thực tế và cách chạy project.
-
----
-
-# NGUYỄN CHI — DATA PACKAGE
+## 2.1 MAI — DATA + DOCUMENTATION PACKAGE
 
 ### Thứ 4 – 18/11
 
@@ -95,46 +72,53 @@ notebooks/
 └── 01_data_exploration.ipynb
 
 docs/
+├── Define.md
+├── Design.md
 └── research/
     └── ag_news.md
-
-data/
-└── processed/
 ```
 
-**Công việc:**
+### Công việc
 
 - Load AG News
+- Kiểm tra cấu trúc dataset
 - Kiểm tra label mapping
 - Train / Validation / Test split
 - Preprocessing
 - Data exploration
-- Chuẩn bị dữ liệu cho Baseline và Transformer
+- Chuẩn hóa dữ liệu đầu vào
+- Xác định format dữ liệu dùng chung cho Baseline và Transformer
+- Hoàn thiện `Define.md`
+- Hoàn thiện `Design.md`
+- Viết tài liệu mô tả dataset
 
 ### Thứ 5 – 19/11
 
+Kiểm tra Data Pipeline sau khi Baseline và Transformer bắt đầu sử dụng.
+
+Đảm bảo dữ liệu đầu vào tương thích với:
+
 ```text
-src/
-└── predict.py
-
-results/
-└── metrics/
-    └── test_predictions.csv
+Baseline
+Frozen Encoder
+Fine-Tuning
 ```
-
-Kiểm tra Data → Prediction pipeline.
 
 ### Thứ 6 – 20/11
 
-Kiểm tra lại Data pipeline và bảo đảm dữ liệu đầu vào tương thích với:
+Kiểm tra lại:
 
-- Baseline
-- Frozen Encoder
-- Fine-Tuning
+- Dataset
+- Label mapping
+- Data split
+- Preprocessing
+- Data format
+
+Nếu có lỗi do integration thì phối hợp với các thành viên liên quan để sửa.
 
 ---
 
-# HUYNH — BASELINE PACKAGE
+# 2.2 HUYNH — BASELINE PACKAGE
 
 ### Thứ 4 – 18/11
 
@@ -148,25 +132,36 @@ notebooks/
 docs/
 └── research/
     └── tfidf_logistic_regression.md
-
-results/
-├── metrics/
-│   └── baseline_metrics.csv
-│
-└── checkpoints/
-    └── baseline/
 ```
 
-**Công việc:**
+### Công việc
 
-- TF-IDF
-- Logistic Regression
+- Xây dựng TF-IDF
+- Xây dựng Logistic Regression
 - Train Baseline
 - Evaluation Baseline
-- Lưu metrics
-- Lưu checkpoint nếu cần
+- Lưu kết quả metrics
+- Lưu predictions nếu cần
+- Chuẩn bị kết quả để Evaluation và Comparison sử dụng
+
+### Metrics cần ghi nhận
+
+```text
+Accuracy
+Precision
+Recall
+Macro F1-score
+Training Time
+Inference Time
+Trainable Parameters
+Model Size
+```
 
 ### Thứ 5 – 19/11
+
+Chạy Baseline trên dataset chính thức.
+
+Lưu kết quả:
 
 ```text
 results/
@@ -174,25 +169,35 @@ results/
     └── baseline_metrics.csv
 ```
 
-Chạy Baseline và lưu metrics/checkpoint.
+Nếu cần checkpoint/model artifact:
+
+```text
+results/
+└── checkpoints/
+    └── baseline/
+```
 
 ### Thứ 6 – 20/11
 
-Xác nhận Baseline là bản cuối và sửa lỗi nếu có.
+- Kiểm tra lại kết quả Baseline
+- Xác nhận metrics hợp lệ
+- Sửa lỗi nếu có
+- Bàn giao kết quả cho Evaluation + Comparison
 
 ### Thứ 7 – 21/11
 
-Kiểm tra Baseline trong quá trình Integration.
+Phối hợp Integration để đảm bảo Baseline có thể chạy lại từ repository.
 
 ---
 
-# MY — FROZEN ENCODER PACKAGE
+# 2.3 MY — TRANSFORMER MODEL + FROZEN ENCODER PACKAGE
 
 ### Thứ 4 – 18/11
 
 ```text
 src/
-└── models.py
+├── models.py
+└── train.py
 
 notebooks/
 └── 03_frozen_encoder.ipynb
@@ -200,43 +205,40 @@ notebooks/
 docs/
 └── research/
     └── frozen_encoder.md
-
-results/
-├── metrics/
-│   └── frozen_encoder_metrics.csv
-│
-└── checkpoints/
-    └── frozen_encoder/
 ```
 
-**Công việc:**
+### Công việc
 
-- Load Pretrained Transformer
+- Load pretrained Transformer
 - Tokenization
+- Xây dựng Transformer model
+- Xây dựng Classification Head
 - Freeze Transformer parameters
-- Classification Head
 - Train Frozen Encoder
-- Evaluation
+- Evaluation Frozen Encoder
 - Lưu checkpoint
 - Lưu metrics
 
-**Ghi nhận:**
+### Metrics cần ghi nhận
 
-- Accuracy
-- Precision
-- Recall
-- Macro F1
-- Training Time
-- Inference Time
-- Trainable Parameters
-- Model Size
+```text
+Accuracy
+Precision
+Recall
+Macro F1-score
+Training Time
+Inference Time
+Trainable Parameters
+Model Size
+```
 
 ### Thứ 5 – 19/11
 
-```text
-src/
-└── models.py
+Chạy Frozen Encoder trên dataset chính thức.
 
+Lưu:
+
+```text
 results/
 ├── metrics/
 │   └── frozen_encoder_metrics.csv
@@ -245,19 +247,21 @@ results/
     └── frozen_encoder/
 ```
 
-Chạy Frozen Encoder, lưu metrics và checkpoint.
-
 ### Thứ 6 – 20/11
 
-Xác nhận Frozen Encoder chạy đúng và sửa lỗi nếu có.
+- Kiểm tra Frozen Encoder
+- Kiểm tra checkpoint
+- Kiểm tra metrics
+- Sửa lỗi nếu có
+- Bàn giao kết quả cho Evaluation + Comparison
 
 ### Thứ 7 – 21/11
 
-Kiểm tra Frozen Encoder trong quá trình Integration.
+Phối hợp Integration để đảm bảo Frozen Encoder chạy đúng trên repository cuối.
 
 ---
 
-# ĐỨC — FINE-TUNING PACKAGE
+# 2.4 ĐỨC — FINE-TUNING PACKAGE
 
 ### Thứ 4 – 18/11
 
@@ -271,43 +275,39 @@ notebooks/
 docs/
 └── research/
     └── fine_tuning.md
-
-results/
-├── metrics/
-│   └── fine_tuning_metrics.csv
-│
-└── checkpoints/
-    └── fine_tuning/
 ```
 
-**Công việc:**
+### Công việc
 
-- Load Pretrained Transformer
+- Sử dụng pretrained Transformer
 - Tokenization
 - Classification Head
-- Training pipeline
+- Xây dựng training pipeline
 - Fine-Tuning toàn bộ Transformer
-- Evaluation
+- Evaluation Fine-Tuning
 - Lưu checkpoint
 - Lưu metrics
 
-**Ghi nhận:**
+### Metrics cần ghi nhận
 
-- Accuracy
-- Precision
-- Recall
-- Macro F1
-- Training Time
-- Inference Time
-- Trainable Parameters
-- Model Size
+```text
+Accuracy
+Precision
+Recall
+Macro F1-score
+Training Time
+Inference Time
+Trainable Parameters
+Model Size
+```
 
 ### Thứ 5 – 19/11
 
-```text
-src/
-└── train.py
+Chạy Fine-Tuning trên dataset chính thức.
 
+Lưu:
+
+```text
 results/
 ├── metrics/
 │   └── fine_tuning_metrics.csv
@@ -316,53 +316,96 @@ results/
     └── fine_tuning/
 ```
 
-Chạy Fine-Tuning, lưu metrics và checkpoint.
-
 ### Thứ 6 – 20/11
 
-Xác nhận Fine-Tuning chạy đúng và sửa lỗi nếu có.
+- Kiểm tra Fine-Tuning
+- Kiểm tra checkpoint
+- Kiểm tra metrics
+- Sửa lỗi nếu có
+- Bàn giao kết quả cho Evaluation + Comparison
 
 ### Thứ 7 – 21/11
 
-Kiểm tra Fine-Tuning trong quá trình Integration.
+Phối hợp Integration để đảm bảo Fine-Tuning chạy đúng trên repository cuối.
 
 ---
 
-# TRÚC CHI — EVALUATION + COMPARISON PACKAGE
+# 2.5 NGUYỄN CHI — EVALUATION + COMPARISON PACKAGE
 
 ### Thứ 4 – 18/11
 
 ```text
 src/
-└── evaluate.py
+├── evaluate.py
+└── compare.py
+
+notebooks/
+└── 05_comparison.ipynb
 
 docs/
 └── research/
     └── evaluation_metrics.md
+```
 
+### Công việc
+
+Xây dựng phần đánh giá thống nhất cho cả 3 phương pháp:
+
+```text
+Baseline
+Frozen Encoder
+Fine-Tuning
+```
+
+### Evaluation
+
+Tính:
+
+```text
+Accuracy
+Precision
+Recall
+Macro F1-score
+Confusion Matrix
+Training Time
+Inference Time
+Trainable Parameters
+Model Size
+```
+
+### Thứ 5 – 19/11
+
+Nhận kết quả từ:
+
+```text
+HUYNH
+MY
+ĐỨC
+```
+
+Chuẩn hóa metrics về cùng format.
+
+Lưu:
+
+```text
 results/
-├── metrics/
-│   └── evaluation_results.csv
-│
+└── metrics/
+    └── evaluation_results.csv
+```
+
+Tạo confusion matrix:
+
+```text
+results/
 └── figures/
     ├── confusion_matrix_baseline.png
     ├── confusion_matrix_frozen_encoder.png
     └── confusion_matrix_fine_tuning.png
 ```
 
-**Công việc:**
-
-- Accuracy
-- Precision
-- Recall
-- Macro F1-score
-- Confusion Matrix
-- Training Time
-- Inference Time
-- Trainable Parameters
-- Model Size
-
 ### Thứ 6 – 20/11
+
+Chuẩn bị Error Analysis:
 
 ```text
 docs/
@@ -370,9 +413,16 @@ docs/
     └── error_analysis.md
 ```
 
-Chuẩn bị và phân tích các mẫu dự đoán sai từ kết quả của 3 mô hình.
+Phân tích:
+
+- Các mẫu dự đoán sai
+- Các cặp class thường bị nhầm
+- Nguyên nhân có thể gây nhầm lẫn
+- Những trường hợp khó phân loại
 
 ### Thứ 7 – 21/11
+
+Hoàn thiện Comparison:
 
 ```text
 src/
@@ -390,7 +440,53 @@ results/
     └── model_comparison.png
 ```
 
-**So sánh:**
+So sánh:
+
+| Model | Accuracy | Precision | Recall | Macro F1 | Training Time | Inference Time | Trainable Params | Model Size |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| TF-IDF + Logistic Regression | | | | | | | | |
+| Frozen Encoder | | | | | | | | |
+| Fine-Tuning | | | | | | | | |
+
+---
+
+# 2.6 TRÚC CHI — PREDICTION + ERROR ANALYSIS + INTEGRATION
+
+### Thứ 4 – 18/11
+
+```text
+src/
+└── predict.py
+```
+
+### Công việc
+
+- Xây dựng chức năng prediction
+- Nhận text mới từ người dùng
+- Preprocess/tokenize input
+- Load model
+- Dự đoán class
+- Trả về label và prediction
+
+Flow:
+
+```text
+Input News
+    ↓
+Preprocessing
+    ↓
+Tokenizer
+    ↓
+Model
+    ↓
+Prediction
+    ↓
+World / Sports / Business / Sci-Tech
+```
+
+### Thứ 5 – 19/11
+
+Kiểm tra prediction pipeline với:
 
 ```text
 Baseline
@@ -398,50 +494,137 @@ Frozen Encoder
 Fine-Tuning
 ```
 
-**Theo:**
+Chuẩn bị dữ liệu prediction phục vụ Error Analysis nếu cần.
+
+### Thứ 6 – 20/11
+
+Phối hợp với Nguyễn Chi để hoàn thiện:
 
 ```text
-Accuracy
-Precision
-Recall
-Macro F1
-Training Time
-Inference Time
-Trainable Parameters
-Model Size
+docs/
+└── results/
+    └── error_analysis.md
+```
+
+Kiểm tra:
+
+- Mẫu dự đoán sai
+- Class bị nhầm
+- Prediction output
+- Các trường hợp khó phân loại
+
+### Thứ 7 – 21/11
+
+Phụ trách Integration:
+
+- Kiểm tra toàn bộ pipeline
+- Kiểm tra `predict.py`
+- Kiểm tra các script chính
+- Kiểm tra notebooks
+- Kiểm tra kết quả
+- Phát hiện lỗi giữa các package
+- Phối hợp sửa lỗi trước khi submit
+
+---
+
+# 3. MAI — FINAL REPOSITORY + REPORT
+
+Ngoài phần Data + Documentation, Mai phụ trách kiểm tra repository và tài liệu cuối.
+
+### Thứ 6 – 20/11
+
+Kiểm tra:
+
+```text
+README.md
+requirements.txt
+.gitignore
+docs/
+data/
+src/
+notebooks/
+results/
+report/
+```
+
+Đảm bảo:
+
+- README khớp với implementation
+- Cấu trúc repository khớp với code
+- Hướng dẫn chạy project chính xác
+- Không có file thừa hoặc file sai vị trí
+
+### Thứ 7 – 21/11
+
+Kiểm tra:
+
+```text
+README
+Define
+Design
+Code
+Notebook
+Results
+Report
+```
+
+Đảm bảo nội dung thống nhất.
+
+### Chủ nhật – 22/11
+
+Hoàn thiện:
+
+```text
+report/
+└── report.md
+```
+
+Kiểm tra lần cuối trước khi submit.
+
+---
+
+
+# 3 DEPENDENCY GIỮA CÁC THÀNH VIÊN
+
+```text
+                 MAI
+          Data + Documentation
+                  │
+                  ↓
+        ┌─────────┴─────────┐
+        ↓                   ↓
+     HUYNH                  MY
+    Baseline          Frozen Encoder
+        │                   │
+        │                   ↓
+        │                  ĐỨC
+        │              Fine-Tuning
+        │                   │
+        └─────────┬─────────┘
+                  ↓
+             NGUYỄN CHI
+       Evaluation + Comparison
+                  │
+                  ↓
+              TRÚC CHI
+       Prediction + Integration
+                  │
+                  ↓
+                MAI
+        Final Report + Submit
 ```
 
 ---
 
-# 3. TIMELINE TỔNG
+# 4. TIMELINE TỔNG
 
-| Ngày | Giai đoạn | Mục tiêu |
+| Ngày | Giai đoạn | Công việc chính |
 |---|---|---|
-| **Thứ 4 – 18/11** | Development | Hoàn thiện code chính của từng package |
-| **Thứ 5 – 19/11** | Experiment | Chạy Baseline, Frozen Encoder, Fine-Tuning và lưu metrics/checkpoint |
-| **Thứ 6 – 20/11** | Validation | Kiểm tra kết quả, confusion matrix, error analysis và sửa lỗi |
-| **Thứ 7 – 21/11** | Integration | Ghép toàn bộ project, Comparison và hoàn thiện kết quả |
-| **Chủ nhật – 22/11** | Final | Hoàn thiện report, README, kiểm tra toàn bộ repository và submit |
+| **Thứ 4 – 18/11** | Development | Hoàn thiện Data, Baseline, Frozen Encoder, Fine-Tuning, Prediction |
+| **Thứ 5 – 19/11** | Experiment | Train 3 phương pháp và lưu metrics/checkpoint |
+| **Thứ 6 – 20/11** | Validation | Kiểm tra metrics, confusion matrix, prediction, error analysis |
+| **Thứ 7 – 21/11** | Integration | Comparison, Integration, kiểm tra toàn bộ repository |
+| **Chủ nhật – 22/11** | Final | Report, README, Final Check và Submit |
 
-## Flow chung
+---
 
-```text
-Thứ 4
-Code từng package
-        ↓
-Thứ 5
-Train + Experiment
-        ↓
-Thứ 6
-Validate + Fix
-        ↓
-Thứ 7
-Integration
-        ↓
-Comparison + Error Analysis
-        ↓
-Chủ nhật
-Report + README + Final Check
-        ↓
-SUBMIT
-```
