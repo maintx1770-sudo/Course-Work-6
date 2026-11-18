@@ -1,8 +1,12 @@
 # THIẾT KẾ (DESIGN)
 
-**Đề tài:** Phân loại chủ đề tin tức AG News bằng Transformer (BERT/DistilBERT): so sánh Frozen Encoder và Fine-Tuning.
+**Đề tài:** Phân loại chủ đề tin tức AG News bằng Transformer: so sánh Frozen Encoder và Fine-Tuning.
 
 ## 1. Kiến trúc hệ thống
+
+Hệ thống sử dụng tập dữ liệu AG News để xây dựng mô hình phân loại tin tức thành 4 nhóm chủ đề: World, Sports, Business và Sci/Tech.
+
+Luồng xử lý tổng quát:
 
 ```text
 Bộ dữ liệu AG News
@@ -17,6 +21,9 @@ Tokenization
 Transformer Encoder
       |
       v
+Mean Pooling
+      |
+      v
 Classification Head
       |
       v
@@ -26,9 +33,9 @@ Dự đoán 4 lớp
 Đánh giá và so sánh
 ```
 
-### 1.1 Baseline: TF-IDF + Logistic Regression
+### 1.1. Baseline: TF-IDF + Logistic Regression
 
-Mô hình không dùng Transformer, làm mốc để so sánh với hai cấu hình Transformer.
+Baseline không sử dụng Transformer và được xây dựng làm mô hình tham chiếu để so sánh với hai cấu hình Transformer.
 
 ```text
 Văn bản đầu vào
@@ -40,65 +47,88 @@ Logistic Regression
 Dự đoán
 ```
 
-### 1.2 Frozen Encoder (đóng băng bộ mã hóa)
+### 1.2. Frozen Encoder
+
+Frozen Encoder sử dụng Transformer đã được huấn luyện trước nhưng đóng băng toàn bộ tham số của encoder. Chỉ Classification Head được cập nhật trong quá trình huấn luyện.
 
 ```text
 Văn bản đầu vào
     |
 Tokenizer
     |
-Transformer đã huấn luyện trước
+DistilBERT Encoder
     |  Đóng băng (Frozen)
     v
+Mean Pooling
+    |
 Classification Head
     |
 Dự đoán
 ```
 
-### 1.3 Fine-Tuning (tinh chỉnh)
+### 1.3. Fine-Tuning
+
+Fine-Tuning sử dụng cùng backbone Transformer với Frozen Encoder nhưng cho phép cập nhật tham số của cả Transformer Encoder và Classification Head.
 
 ```text
 Văn bản đầu vào
     |
 Tokenizer
     |
-Transformer đã huấn luyện trước
+DistilBERT Encoder
     |  Có thể huấn luyện (Trainable)
     v
+Mean Pooling
+    |
 Classification Head
     |
 Dự đoán
 ```
 
-### 1.4 Cấu trúc mô hình
+### 1.4. Cấu trúc mô hình
 
-- **Encoder:** `distilbert-base-uncased` (mặc định) hoặc `bert-base-uncased`.
-- **Biểu diễn văn bản:** vector của token đầu tiên (`[CLS]`) ở lớp cuối của encoder.
-- **Classification Head:** Dropout, sau đó một lớp Linear từ kích thước ẩn (768) xuống 4 logit.
+- **Encoder:** `distilbert-base-uncased`.
+- **Tokenizer:** tokenizer tương ứng với `distilbert-base-uncased`.
+- **Biểu diễn văn bản:** sử dụng Mean Pooling trên `last_hidden_state` của Transformer Encoder. `attention_mask` được sử dụng để bỏ qua các token padding khi tính trung bình.
+- **Classification Head:** gồm Dropout và một lớp Linear, ánh xạ vector biểu diễn của encoder xuống 4 logit tương ứng với 4 lớp.
 - **Hàm mất mát:** Cross-Entropy Loss.
+- **Các lớp đầu ra:** World, Sports, Business và Sci/Tech.
 
 ## 2. Các module
 
 ### Module 1 – Phân loại chủ đề tin tức
-Phân loại bài báo vào World, Sports, Business hoặc Sci/Tech.
+
+Phân loại bài báo thuộc một trong bốn nhóm chủ đề: World, Sports, Business hoặc Sci/Tech.
 
 ### Module 2 – Phân loại dựa trên Transformer
-Dùng BERT hoặc DistilBERT để tạo biểu diễn văn bản có ngữ cảnh.
+
+Sử dụng mô hình `distilbert-base-uncased` để tạo biểu diễn văn bản có ngữ cảnh phục vụ nhiệm vụ phân loại chủ đề.
 
 ### Module 3 – Frozen Encoder
-Đóng băng tham số Transformer và chỉ huấn luyện classification head.
+
+Đóng băng toàn bộ tham số của Transformer Encoder và chỉ huấn luyện Classification Head.
 
 ### Module 4 – Fine-Tuning
-Cập nhật cả tham số Transformer và classification head.
+
+Cho phép cập nhật tham số của Transformer Encoder và Classification Head trong quá trình huấn luyện.
 
 ### Module 5 – Đánh giá mô hình
-Tính Accuracy, Precision, Recall, Macro F1-score và Confusion Matrix.
+
+Tính các chỉ số Accuracy, Precision, Recall, Macro F1-score và Confusion Matrix. Ngoài ra, hệ thống ghi nhận các chỉ số về chi phí tính toán như Training Time, Inference Time, Trainable Parameters và Model Size khi các module thực nghiệm hoàn thiện.
 
 ### Module 6 – So sánh mô hình
-So sánh Frozen Encoder và Fine-Tuning (kèm baseline) theo các chỉ số hiệu năng và chi phí tính toán.
+
+So sánh ba cấu hình:
+
+- TF-IDF + Logistic Regression.
+- Frozen Encoder.
+- Fine-Tuning.
+
+Việc so sánh tập trung vào hiệu năng phân loại và chi phí tính toán.
 
 ### Module 7 – Phân tích lỗi
-Xem xét các mẫu bị phân loại sai, tìm cặp lớp hay nhầm lẫn và nguyên nhân có thể.
+
+Phân tích các mẫu bị phân loại sai, xác định các cặp lớp thường bị nhầm lẫn và xem xét những nguyên nhân có thể dẫn đến lỗi phân loại.
 
 ## 3. Cấu trúc thư mục
 
@@ -108,54 +138,125 @@ Course-Work-6/
 ├── README.md
 ├── .gitignore
 ├── requirements.txt
+│
 ├── docs/
 │   ├── Define.md
-│   └── Design.md
+│   ├── Design.md
+│   └── research/
+│
 ├── data/
+│   ├── raw/
+│   └── processed/
+│
 ├── src/
+│   ├── data.py
+│   ├── baseline.py
+│   ├── models.py
+│   ├── train.py
+│   ├── evaluate.py
+│   ├── compare.py
+│   └── predict.py
+│
 ├── notebooks/
+│
 ├── results/
+│   ├── metrics/
+│   ├── figures/
+│   └── checkpoints/
+│
 └── report/
 ```
 
 | Thư mục / File | Vai trò |
 |---|---|
-| `README.md` | Mô tả dự án, cách cài đặt và chạy |
-| `requirements.txt` | Danh sách thư viện cần cài |
-| `docs/` | Tài liệu: `Define.md` (định nghĩa bài toán), `Design.md` (thiết kế) |
-| `data/` | Dữ liệu AG News (không đẩy file lớn lên GitHub) |
-| `src/` | Mã nguồn: tiền xử lý, mô hình, huấn luyện, đánh giá, so sánh |
-| `notebooks/` | Notebook huấn luyện, đánh giá và demo |
-| `results/` | Chỉ số, biểu đồ, confusion matrix, kết quả so sánh |
-| `report/` | Báo cáo cuối kỳ và slide |
+| `README.md` | Mô tả dự án, hướng dẫn cài đặt và cách chạy |
+| `requirements.txt` | Danh sách thư viện cần cài đặt |
+| `.gitignore` | Xác định các file và thư mục không đưa lên Git |
+| `docs/` | Tài liệu phân tích, thiết kế và nghiên cứu |
+| `data/` | Dữ liệu sử dụng trong project |
+| `data/raw/` | Dữ liệu đầu vào chưa qua xử lý nếu nhóm sử dụng file raw |
+| `data/processed/` | Dữ liệu sau xử lý nếu cần lưu |
+| `src/` | Mã nguồn của hệ thống |
+| `notebooks/` | Notebook EDA, huấn luyện, đánh giá và so sánh |
+| `results/metrics/` | Các file kết quả định lượng |
+| `results/figures/` | Biểu đồ và confusion matrix |
+| `results/checkpoints/` | Checkpoint của các mô hình |
+| `report/` | Báo cáo và bài thuyết trình |
 
-### 3.1 Các file dự kiến trong `src/`
+### 3.1. Các file trong `src/`
 
 | File | Nội dung |
 |---|---|
-| `data.py` | Nạp AG News, chia train/validation/test, tiền xử lý, tokenization |
-| `models.py` | Xây dựng mô hình, bật/tắt đóng băng encoder |
-| `train.py` | Vòng lặp huấn luyện, early stopping, lưu mô hình |
-| `evaluate.py` | Tính chỉ số, confusion matrix, đo thời gian suy luận |
-| `compare.py` | Tổng hợp kết quả Frozen Encoder và Fine-Tuning, vẽ bảng và biểu đồ |
-| `predict.py` | Dự đoán cho một bài báo mới |
+| `data.py` | Nạp dữ liệu AG News, tiền xử lý và chuẩn bị dữ liệu cho các mô hình |
+| `baseline.py` | Cài đặt và huấn luyện mô hình TF-IDF + Logistic Regression |
+| `models.py` | Xây dựng mô hình Transformer, Mean Pooling và Classification Head; hỗ trợ cấu hình Frozen Encoder |
+| `train.py` | Module dành cho quy trình huấn luyện mô hình Transformer |
+| `evaluate.py` | Module dành cho đánh giá mô hình và tính các chỉ số |
+| `compare.py` | Module dành cho tổng hợp và so sánh kết quả các mô hình |
+| `predict.py` | Module dành cho dự đoán văn bản tin tức mới |
+
+Các module `train.py`, `evaluate.py`, `compare.py` và `predict.py` được tổ chức để phục vụ các bước huấn luyện, đánh giá, so sánh và dự đoán của hệ thống. Chi tiết implementation được cập nhật theo quá trình phát triển project.
 
 ## 4. Dữ liệu và chia tập
 
-- **Nguồn:** AG News (Kaggle: `amananandrai/ag-news-classification-dataset`), gồm `train.csv` và `test.csv`.
-- **Trường dữ liệu:** `Class Index`, `Title`, `Description`.
-- **Quy mô:** khoảng 120.000 mẫu train và 7.600 mẫu test, 4 lớp cân bằng.
-- **Chia tập:** tách 10% tập train làm validation (chia theo lớp, `stratify`), giữ nguyên tập test gốc để đánh giá cuối cùng.
-- **Đầu vào mô hình:** ghép `Title` và `Description` thành một chuỗi.
-- **Nhãn:** chuyển `Class Index` (1 đến 4) về 0 đến 3 (0: World, 1: Sports, 2: Business, 3: Sci/Tech).
-- **Tiền xử lý:** loại bỏ khoảng trắng thừa, giữ nguyên chữ hoa chữ thường theo tokenizer (với mô hình `uncased`, tokenizer tự hạ chữ thường).
+### 4.1. Nguồn dữ liệu
+
+Dự án sử dụng tập dữ liệu **AG News**, được tải thông qua thư viện Hugging Face Datasets với dataset `fancyzhx/ag_news`.
+
+Dataset gồm hai tập chính:
+
+- Training set: 120.000 mẫu.
+- Test set: 7.600 mẫu.
+
+Dữ liệu thuộc bốn nhóm chủ đề:
+
+- World.
+- Sports.
+- Business.
+- Sci/Tech.
+
+### 4.2. Trường dữ liệu
+
+Dữ liệu được sử dụng trong pipeline hiện tại gồm:
+
+- `text`: nội dung văn bản tin tức.
+- `label`: nhãn tương ứng với chủ đề của tin tức.
+
+Mapping nhãn:
+
+| Label | Chủ đề |
+|---:|---|
+| 0 | World |
+| 1 | Sports |
+| 2 | Business |
+| 3 | Sci/Tech |
+
+### 4.3. Chia tập dữ liệu
+
+Tập training được chia thành training set và validation set để phục vụ quá trình huấn luyện và theo dõi hiệu năng.
+
+Tập test được giữ riêng và chỉ sử dụng cho đánh giá cuối cùng.
+
+Việc chia dữ liệu được thực hiện theo hướng stratified split nhằm duy trì phân bố nhãn giữa các tập.
+
+Random seed được sử dụng để hỗ trợ khả năng tái lập kết quả.
+
+### 4.4. Tiền xử lý
+
+Dữ liệu văn bản được chuẩn hóa trước khi đưa vào tokenizer.
+
+Đối với Transformer `distilbert-base-uncased`, tokenizer tương ứng xử lý văn bản theo cơ chế của mô hình uncased.
+
+Trong quá trình tokenization, văn bản được chuyển thành `input_ids` và `attention_mask`.
+
+Đối với Transformer, các token padding được nhận diện thông qua `attention_mask` và không được tính vào Mean Pooling.
 
 ## 5. Luồng dữ liệu
 
-### 5.1 Suy luận (Inference)
+### 5.1. Suy luận (Inference)
 
 ```text
-Văn bản tin tức thô
+Văn bản tin tức
       |
 Tiền xử lý
       |
@@ -163,9 +264,11 @@ Tokenizer
       |
 input_ids + attention_mask
       |
-Transformer Encoder
+DistilBERT Encoder
       |
-Biểu diễn văn bản
+last_hidden_state
+      |
+Mean Pooling
       |
 Classification Head
       |
@@ -176,7 +279,7 @@ Softmax
 Danh mục dự đoán + xác suất
 ```
 
-### 5.2 Huấn luyện (Training)
+### 5.2. Huấn luyện (Training)
 
 ```text
 Văn bản tin tức + Nhãn
@@ -185,7 +288,11 @@ Tiền xử lý
       |
 Tokenization
       |
-Transformer Encoder
+input_ids + attention_mask
+      |
+DistilBERT Encoder
+      |
+Mean Pooling
       |
 Classification Head
       |
@@ -193,167 +300,272 @@ Logit dự đoán
       |
 Cross-Entropy Loss
       |
-Lan truyền ngược (Backpropagation)
+Lan truyền ngược
       |
 Cập nhật tham số
 ```
 
-Ở cấu hình Frozen Encoder, các tham số của encoder không nhận gradient, chỉ classification head được cập nhật.
+Đối với Frozen Encoder, các tham số của Transformer Encoder được đóng băng và không nhận gradient. Chỉ các tham số của Classification Head được cập nhật.
+
+Đối với Fine-Tuning, các tham số của Transformer Encoder và Classification Head đều được phép cập nhật trong quá trình huấn luyện.
 
 ## 6. Cấu hình thí nghiệm
 
-Các giá trị dưới đây là cấu hình đề xuất ban đầu, có thể điều chỉnh theo phần cứng và được ghi lại trong `results/` sau khi chạy.
+### 6.1. Frozen Encoder
 
-| Tham số | Frozen Encoder | Fine-Tuning |
-|---|---|---|
-| Mô hình | DistilBERT (hoặc BERT) | giống bên trái |
-| Tham số huấn luyện | chỉ classification head | toàn bộ mô hình |
-| Learning rate | 1e-3 | 2e-5 |
-| Optimizer | AdamW | AdamW |
-| Batch size | 32 | 32 (giảm nếu thiếu bộ nhớ) |
-| Số epoch | 3 đến 5 | 3 |
-| Độ dài chuỗi tối đa | 128 | 128 |
-| Random seed | 42 | 42 |
+Cấu hình hiện tại của Frozen Encoder được triển khai trong project như sau:
 
-Điều kiện chung để so sánh công bằng: cùng cách chia dữ liệu, cùng tiền xử lý, cùng tokenizer, cùng độ dài chuỗi tối đa, cùng random seed và cùng tập test.
+| Tham số | Giá trị |
+|---|---|
+| Mô hình | `distilbert-base-uncased` |
+| Phần được huấn luyện | Classification Head |
+| Encoder | Frozen |
+| Learning rate | `1e-3` |
+| Optimizer | AdamW |
+| Batch size trích xuất đặc trưng | `64` |
+| Batch size huấn luyện Classification Head | `256` |
+| Số epoch | `20` |
+| Độ dài chuỗi tối đa | `64` |
+| Random seed | `42` |
+| Loss function | Cross-Entropy Loss |
 
-## 7. Giao diện / API
+Cấu hình trên được sử dụng cho implementation Frozen Encoder hiện tại.
 
-### Dataset
+### 6.2. Fine-Tuning
+
+Fine-Tuning sử dụng cùng backbone `distilbert-base-uncased` và cùng pipeline dữ liệu với Frozen Encoder để đảm bảo khả năng so sánh.
+
+Các hyperparameter của Fine-Tuning sẽ được xác định và ghi nhận khi module Fine-Tuning được triển khai và chạy thực nghiệm.
+
+Các nguyên tắc chung:
+
+- Không đóng băng Transformer Encoder.
+- Transformer Encoder và Classification Head đều trainable.
+- Sử dụng Cross-Entropy Loss.
+- Sử dụng AdamW.
+- Sử dụng cùng tập test với Frozen Encoder.
+- Ghi nhận các chỉ số Accuracy, Precision, Recall, Macro F1-score, Training Time, Inference Time, Trainable Parameters và Model Size.
+
+### 6.3. Điều kiện so sánh
+
+Để đảm bảo so sánh công bằng giữa các mô hình, các cấu hình thực nghiệm cần thống nhất:
+
+- Dataset.
+- Cách chia train/validation/test.
+- Label mapping.
+- Tiền xử lý.
+- Tokenizer.
+- Backbone Transformer.
+- Random seed khi phù hợp.
+- Tập test đánh giá cuối cùng.
+- Các chỉ số đánh giá.
+
+Các hyperparameter cụ thể của từng mô hình được ghi lại cùng với kết quả thực nghiệm.
+
+## 7. Giao diện các module
+
+Các giao diện dưới đây mô tả chức năng dự kiến của từng module. Tên hàm và tham số có thể được điều chỉnh trong quá trình triển khai nhưng phải đảm bảo thống nhất giữa các module.
+
+### 7.1. Dataset
+
 ```python
 load_dataset()
 ```
-Nạp dữ liệu AG News và trả về train, validation, test.
 
-### Tokenizer
+Nạp dữ liệu AG News và chuẩn bị các tập dữ liệu phục vụ huấn luyện, validation và test.
+
+### 7.2. Tokenizer
+
 ```python
 tokenize(text)
 ```
+
 Chuyển văn bản thành `input_ids` và `attention_mask`.
 
-### Xây dựng mô hình
+### 7.3. Xây dựng mô hình
+
 ```python
 build_model(model_name, freeze_encoder)
 ```
-Tạo mô hình với encoder đóng băng (`True`) hoặc có thể huấn luyện (`False`).
 
-### Dự đoán
+Tạo mô hình Transformer với Classification Head. Tham số `freeze_encoder` xác định Transformer Encoder được đóng băng hay được phép huấn luyện.
+
+### 7.4. Dự đoán
+
 ```python
 predict(text)
 ```
-Trả về lớp dự đoán và xác suất.
 
-### Huấn luyện
+Nhận một văn bản tin tức và trả về lớp dự đoán cùng xác suất tương ứng.
+
+### 7.5. Huấn luyện
+
 ```python
 train(model, train_data, validation_data)
 ```
-Huấn luyện cấu hình mô hình được chọn.
 
-### Đánh giá
+Thực hiện quá trình huấn luyện mô hình trên training set và theo dõi hiệu năng trên validation set.
+
+### 7.6. Đánh giá
+
 ```python
 evaluate(model, test_data)
 ```
-Trả về Accuracy, Precision, Recall, Macro F1-score và Confusion Matrix.
 
-### So sánh
+Tính các chỉ số đánh giá trên test set, bao gồm Accuracy, Precision, Recall, Macro F1-score và Confusion Matrix.
+
+### 7.7. So sánh
+
 ```python
-compare(results_frozen, results_finetuned)
+compare(results_baseline, results_frozen, results_finetuned)
 ```
-So sánh hai hướng tiếp cận.
+
+Tổng hợp kết quả của Baseline, Frozen Encoder và Fine-Tuning để tạo bảng và biểu đồ so sánh.
 
 ## 8. Phương pháp đánh giá và đo lường
 
-### 8.1 Hiệu năng phân loại
-- Accuracy, Precision, Recall, Macro F1-score trên tập test.
-- Confusion Matrix cho từng mô hình.
-- Báo cáo kết quả của baseline TF-IDF + Logistic Regression cùng bảng so sánh.
+### 8.1. Hiệu năng phân loại
 
-### 8.2 Hiệu năng tính toán
+Các mô hình được đánh giá trên tập test bằng:
+
+- Accuracy.
+- Precision.
+- Recall.
+- Macro F1-score.
+- Confusion Matrix.
+
+Kết quả của TF-IDF + Logistic Regression được sử dụng làm baseline để so sánh với Frozen Encoder và Fine-Tuning.
+
+### 8.2. Hiệu năng tính toán
 
 | Chỉ số | Cách đo |
 |---|---|
-| Thời gian huấn luyện | Tổng thời gian chạy huấn luyện (`time.perf_counter`) |
-| Thời gian suy luận | Thời gian trung bình trên mỗi mẫu hoặc mỗi batch ở tập test |
-| Số tham số huấn luyện được | Đếm tham số có `requires_grad = True` |
-| Kích thước mô hình | Dung lượng file mô hình đã lưu (MB) |
+| Training Time | Tổng thời gian thực hiện quá trình huấn luyện |
+| Inference Time | Tổng thời gian xử lý tập test; có thể quy đổi sang thời gian trung bình trên mỗi mẫu |
+| Trainable Parameters | Số tham số có `requires_grad = True` |
+| Model Size | Dung lượng checkpoint/model được lưu |
 
-### 8.3 Phân tích lỗi
-- Liệt kê các cặp lớp bị nhầm nhiều nhất từ confusion matrix (ví dụ Business và Sci/Tech).
-- Xem xét một số mẫu bị phân loại sai và nhận xét nguyên nhân.
-- Nêu giới hạn của mô hình (văn bản dài bị cắt, chủ đề nằm giữa hai lớp).
+### 8.3. Phân tích lỗi
+
+Phân tích lỗi bao gồm:
+
+- Xác định các cặp lớp có mức độ nhầm lẫn cao từ Confusion Matrix.
+- Kiểm tra một số mẫu bị phân loại sai.
+- Xem xét các nguyên nhân có thể dẫn đến lỗi.
+- Phân tích trường hợp nội dung có đặc điểm của nhiều chủ đề.
+- Xem xét ảnh hưởng của việc giới hạn độ dài chuỗi đối với các văn bản dài.
 
 ## 9. Kết quả đầu ra
 
 | Đầu ra | Vị trí |
 |---|---|
-| Chỉ số, bảng so sánh | `results/` |
-| Biểu đồ và confusion matrix | `results/` |
-| Mô hình đã huấn luyện | `results/` (không đẩy lên GitHub nếu nặng) |
-| Notebook huấn luyện, đánh giá, demo | `notebooks/` |
-| Báo cáo cuối kỳ, slide | `report/` |
+| Metrics | `results/metrics/` |
+| Biểu đồ và Confusion Matrix | `results/figures/` |
+| Checkpoint mô hình | `results/checkpoints/` |
+| Notebook EDA, huấn luyện và so sánh | `notebooks/` |
+| Báo cáo và slide | `report/` |
 | Hướng dẫn cài đặt và chạy | `README.md` |
+
+Các file dữ liệu lớn và checkpoint có dung lượng lớn không nên được đưa trực tiếp lên GitHub. Các file này được quản lý thông qua `.gitignore` theo quy định của project.
 
 ## 10. Các mốc thực hiện
 
 ### Mốc 1 – Chuẩn bị dữ liệu
-- Lấy bộ AG News
-- Khảo sát dữ liệu
-- Chuẩn bị tập train/validation/test
-- Cài đặt tiền xử lý
+
+- Nạp bộ dữ liệu AG News.
+- Khảo sát dữ liệu.
+- Kiểm tra phân bố nhãn.
+- Chuẩn bị training, validation và test set.
+- Thực hiện tiền xử lý.
+- Chuẩn hóa label mapping.
+- Chuẩn bị tokenizer cho Transformer.
 
 ### Mốc 2 – Baseline
-- Cài đặt TF-IDF + Logistic Regression
-- Chọn BERT hoặc DistilBERT
-- Nạp tokenizer và mô hình
-- Cài đặt classification head và kiểm tra forward pass
+
+- Chuẩn bị dữ liệu văn bản cho baseline.
+- Chuyển văn bản thành đặc trưng TF-IDF.
+- Huấn luyện Logistic Regression.
+- Đánh giá baseline.
+- Lưu metrics và các kết quả cần thiết.
 
 ### Mốc 3 – Frozen Encoder
-- Đóng băng Transformer
-- Huấn luyện classification head
-- Lưu mô hình và chỉ số
+
+- Nạp `distilbert-base-uncased`.
+- Nạp tokenizer tương ứng.
+- Đóng băng Transformer Encoder.
+- Thực hiện Mean Pooling.
+- Xây dựng Classification Head.
+- Huấn luyện Classification Head.
+- Lưu checkpoint và metrics.
 
 ### Mốc 4 – Fine-Tuning
-- Bật cập nhật cho Transformer
-- Huấn luyện toàn bộ mô hình
-- Lưu mô hình và chỉ số
+
+- Sử dụng cùng backbone và pipeline dữ liệu với Frozen Encoder.
+- Không đóng băng Transformer Encoder.
+- Huấn luyện Transformer Encoder cùng Classification Head.
+- Theo dõi kết quả trên validation set.
+- Lưu checkpoint và metrics.
 
 ### Mốc 5 – Đánh giá
-- Tính toàn bộ chỉ số đánh giá
-- Tạo confusion matrix
-- Đo thời gian huấn luyện và suy luận
+
+- Tính Accuracy.
+- Tính Precision.
+- Tính Recall.
+- Tính Macro F1-score.
+- Tạo Confusion Matrix.
+- Đo Training Time.
+- Đo Inference Time.
+- Đếm Trainable Parameters.
+- Xác định Model Size.
 
 ### Mốc 6 – So sánh và phân tích lỗi
-- So sánh hiệu năng phân loại và chi phí tính toán
-- Phân tích các đánh đổi (trade-off)
-- Phân tích mẫu bị phân loại sai
+
+- So sánh TF-IDF + Logistic Regression, Frozen Encoder và Fine-Tuning.
+- So sánh hiệu năng phân loại.
+- So sánh chi phí tính toán.
+- Phân tích trade-off giữa hiệu năng và chi phí.
+- Phân tích các mẫu bị phân loại sai.
 
 ### Mốc 7 – Tài liệu và demo
-- Cập nhật README
-- Ghi lại thiết lập và kết quả
-- Chuẩn bị demo, báo cáo cuối và bài thuyết trình
+
+- Cập nhật README.
+- Kiểm tra Define.md và Design.md.
+- Ghi lại môi trường và cấu hình thực nghiệm.
+- Tổng hợp kết quả.
+- Chuẩn bị demo.
+- Hoàn thiện báo cáo.
+- Hoàn thiện bài thuyết trình.
 
 ## 11. Rủi ro kỹ thuật
 
 ### Rủi ro 1 – Chi phí tính toán cao
-Dùng DistilBERT, giảm batch size, dùng GPU (hoặc Google Colab) và giới hạn độ dài chuỗi khi cần.
+
+Transformer có thể yêu cầu nhiều tài nguyên tính toán. Có thể giảm batch size, giới hạn độ dài chuỗi và sử dụng GPU hoặc thiết bị tăng tốc phù hợp khi cần.
 
 ### Rủi ro 2 – Overfitting
-Theo dõi hiệu năng trên tập validation và dùng early stopping khi phù hợp.
+
+Theo dõi hiệu năng trên validation set và sử dụng các biện pháp phù hợp như early stopping hoặc điều chỉnh số epoch khi cần.
 
 ### Rủi ro 3 – Văn bản đầu vào dài
-Dùng độ dài chuỗi tối đa cố định và cách cắt (truncation) nhất quán.
+
+Văn bản có độ dài vượt quá giới hạn của mô hình có thể bị cắt bằng truncation. Cần sử dụng cùng quy tắc xử lý giữa các mô hình để đảm bảo tính nhất quán.
 
 ### Rủi ro 4 – So sánh không công bằng
-Dùng cùng cách chia dữ liệu, tiền xử lý, chỉ số và random seed.
+
+Các mô hình cần sử dụng cùng dataset, cách chia dữ liệu, preprocessing, label mapping và test set.
 
 ### Rủi ro 5 – Nhầm lẫn giữa các lớp
-Phân tích confusion matrix và xem xét các mẫu bị phân loại sai.
+
+Một số tin tức có thể chứa nội dung liên quan đến nhiều chủ đề. Confusion Matrix và error analysis được sử dụng để xác định các cặp lớp thường bị nhầm lẫn.
 
 ### Rủi ro 6 – Khả năng tái lập
-Ghi lại tên mô hình, random seed, siêu tham số, cách chia dữ liệu và môi trường phần mềm.
 
-### Rủi ro 7 – Lựa chọn mô hình
-Chọn BERT hay DistilBERT dựa trên phần cứng, thời gian huấn luyện, kích thước mô hình và hiệu năng.
+Cần ghi lại random seed, tên mô hình, hyperparameter, cách chia dữ liệu và môi trường phần mềm để hỗ trợ tái lập thực nghiệm.
+
+### Rủi ro 7 – Chi phí và hiệu năng của Transformer
+
+`distilbert-base-uncased` được sử dụng làm backbone nhằm cân bằng giữa khả năng biểu diễn ngữ cảnh và chi phí tính toán. Hiệu năng, thời gian huấn luyện và kích thước mô hình cần được ghi nhận để đánh giá mức độ phù hợp.
 
 ### Rủi ro 8 – Dung lượng file lớn trên GitHub
-Không đẩy dữ liệu và checkpoint nặng lên repo, thêm vào `.gitignore` và ghi cách tải trong `README.md`.
+
+Dữ liệu lớn và checkpoint có dung lượng lớn không nên đưa trực tiếp lên repository. Các file này cần được đưa vào `.gitignore` và README cần mô tả cách chuẩn bị hoặc tải dữ liệu khi cần.
