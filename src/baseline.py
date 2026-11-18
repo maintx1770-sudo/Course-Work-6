@@ -1,3 +1,13 @@
+"""Baseline for Coursework Topic 6: TF-IDF + Logistic Regression on AG News.
+
+Run from the repository root:
+    python -m src.baseline
+
+Outputs:
+    results/metrics/baseline_metrics.csv
+    results/metrics/baseline_test_predictions.csv
+    results/checkpoints/baseline/baseline_pipeline.joblib
+    results/checkpoints/baseline/config.json
 """
 from __future__ import annotations
 
@@ -6,7 +16,6 @@ import time
 from pathlib import Path
 
 import joblib
-import numpy as np
 import pandas as pd
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression
@@ -17,8 +26,9 @@ from sklearn.metrics import (
     f1_score,
     precision_recall_fscore_support,
 )
-from sklearn.model_selection import train_test_split
 from sklearn.pipeline import Pipeline
+
+from src.data import LABEL_NAMES, SEED, load_splits  # shared split: 108,000 / 12,000 / 7,600
 
 ROOT = Path(__file__).resolve().parents[1]
 METRICS_PATH = ROOT / "results" / "metrics" / "baseline_metrics.csv"
@@ -27,34 +37,7 @@ CKPT_DIR = ROOT / "results" / "checkpoints" / "baseline"
 MODEL_PATH = CKPT_DIR / "baseline_pipeline.joblib"
 CONFIG_PATH = CKPT_DIR / "config.json"
 
-LABEL_NAMES = ["World", "Sports", "Business", "Sci/Tech"]  # AG News ids 0..3
-SEED = 42
 C_GRID = [1.0, 5.0, 10.0]
-
-
-# --------------------------------------------------------------------------- #
-# Data
-# --------------------------------------------------------------------------- #
-def load_splits(val_size: float = 0.1, seed: int = SEED) -> dict:
-    """Load AG News and return {"train": (texts, labels), "val": ..., "test": ...}.
-
-    TEMPORARY: loads directly from Hugging Face. Replace the body of this
-    function with the loader from src/data.py once it is available, so that
-    all models use the exact same train/val/test split.
-    """
-    from datasets import load_dataset
-
-    ds = load_dataset("ag_news")
-    x = list(ds["train"]["text"])
-    y = list(ds["train"]["label"])
-    x_tr, x_val, y_tr, y_val = train_test_split(
-        x, y, test_size=val_size, stratify=y, random_state=seed
-    )
-    return {
-        "train": (x_tr, y_tr),
-        "val": (x_val, y_val),
-        "test": (list(ds["test"]["text"]), list(ds["test"]["label"])),
-    }
 
 
 # --------------------------------------------------------------------------- #
