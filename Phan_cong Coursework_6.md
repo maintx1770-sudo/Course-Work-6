@@ -60,7 +60,7 @@ Phân tích các mẫu dự đoán sai để xác định:
 
 # 2. PHÂN CÔNG THEO THÀNH VIÊN
 
-## 2.1 MAI — DATA + DOCUMENTATION PACKAGE
+##  MAI — DATA + DOCUMENTATION PACKAGE
 
 ### Thứ 4 – 18/11
 
@@ -118,7 +118,7 @@ Nếu có lỗi do integration thì phối hợp với các thành viên liên q
 
 ---
 
-# 2.2 HUYNH — BASELINE PACKAGE
+#  HUYNH — BASELINE PACKAGE
 
 ### Thứ 4 – 18/11
 
@@ -190,7 +190,7 @@ Phối hợp Integration để đảm bảo Baseline có thể chạy lại từ
 
 ---
 
-# 2.3 MY — TRANSFORMER MODEL + FROZEN ENCODER PACKAGE
+#  MY — TRANSFORMER MODEL + FROZEN ENCODER PACKAGE
 
 ### Thứ 4 – 18/11
 
@@ -261,7 +261,7 @@ Phối hợp Integration để đảm bảo Frozen Encoder chạy đúng trên r
 
 ---
 
-# 2.4 ĐỨC — FINE-TUNING PACKAGE
+#  ĐỨC — FINE-TUNING PACKAGE
 
 ### Thứ 4 – 18/11
 
@@ -330,7 +330,7 @@ Phối hợp Integration để đảm bảo Fine-Tuning chạy đúng trên repo
 
 ---
 
-# 2.5 NGUYỄN CHI — EVALUATION + COMPARISON PACKAGE
+#  NGUYỄN CHI — EVALUATION + COMPARISON PACKAGE
 
 ### Thứ 4 – 18/11
 
@@ -450,7 +450,7 @@ So sánh:
 
 ---
 
-# 2.6 TRÚC CHI — PREDICTION + ERROR ANALYSIS + INTEGRATION
+# TRÚC CHI — PREDICTION + ERROR ANALYSIS + INTEGRATION
 
 ### Thứ 4 – 18/11
 
@@ -527,7 +527,7 @@ Phụ trách Integration:
 
 ---
 
-# 3. MAI — FINAL REPOSITORY + REPORT
+#  MAI — FINAL REPOSITORY + REPORT
 
 Ngoài phần Data + Documentation, Mai phụ trách kiểm tra repository và tài liệu cuối.
 
