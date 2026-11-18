@@ -147,8 +147,7 @@ Ngoài hiệu năng phân loại, project cũng so sánh:
 
 ---
 
-## 6. Cấu trúc thư 
-
+## 6. Cấu trúc thư mục
 ```text
 Course-Work-6/
 │
