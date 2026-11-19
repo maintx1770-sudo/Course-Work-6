@@ -17,6 +17,11 @@ overwrite the official files in results/metrics/ and results/checkpoints/.
 """
 from __future__ import annotations
 
+import os
+
+# Must be set before huggingface_hub is imported (Windows without symlink support).
+os.environ.setdefault("HF_HUB_DISABLE_SYMLINKS_WARNING", "1")
+
 import argparse
 import random
 import sys
@@ -31,6 +36,12 @@ from sklearn.metrics import accuracy_score, precision_recall_fscore_support
 from torch.utils.data import DataLoader, Dataset
 from tqdm.auto import tqdm
 from transformers import AutoModel, AutoTokenizer, get_linear_schedule_with_warmup
+from transformers.utils import logging as hf_logging
+from huggingface_hub.utils import logging as hub_logging
+
+hf_logging.set_verbosity_error()   # hides the "LOAD REPORT ... UNEXPECTED" notes
+hf_logging.disable_progress_bar()  # hides the "Loading weights" bar (training bars stay)
+hub_logging.set_verbosity_error()  # hides the "unauthenticated requests" warning
 
 ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:  # lets `python src/train.py` and notebooks import src.data
