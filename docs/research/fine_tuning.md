@@ -4,7 +4,7 @@ Dùng cho Coursework Topic 6 (AG News, 4 lớp). Tài liệu này giải thích 
 
 ## 1. Fine-Tuning là gì
 
-Bộ mã hóa (encoder) DistilBERT đã được huấn luyện trước (pretrained) trên lượng văn bản rất lớn, nên đã "biết" ngôn ngữ. Có hai cách dùng nó cho bài phân loại:
+Bộ mã hóa (encoder) DistilBERT đã được huấn luyện trước (pretrained) trên lượng văn bản rất lớn, nên đã "biết" ngôn ngữ. Có hai cách dùng nó cho bài phân loại
 
 | | Frozen Encoder | Fine-Tuning |
 |---|---|---|
