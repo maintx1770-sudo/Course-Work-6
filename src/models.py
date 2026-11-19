@@ -17,6 +17,7 @@ import argparse
 import copy
 import time
 from pathlib import Path
+import sys
 
 import numpy as np
 import pandas as pd
@@ -26,8 +27,11 @@ from sklearn.metrics import accuracy_score, precision_recall_fscore_support
 from torch.utils.data import DataLoader, TensorDataset
 from tqdm.auto import tqdm
 from transformers import AutoModel, AutoTokenizer
+from src.data import load_tensor_splits
 
 ROOT = Path(__file__).resolve().parents[1]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
 LABELS = ["World", "Sports", "Business", "Sci/Tech"]  # 0,1,2,3 theo AG News
 MODEL_NAME = "distilbert-base-uncased"
 
@@ -36,7 +40,7 @@ MODEL_NAME = "distilbert-base-uncased"
 # Data (tạm thời tự load để chạy độc lập; khi Nguyễn Chi xong src/data.py
 # có thể thay hàm này bằng hàm của data.py)
 # ----------------------------------------------------------------------------
-def load_ag_news(train_size=None, val_size=None, test_size=None, seed=42):
+data = load_tensor_splits(train_size=train_size, val_size=val_size, test_size=test_size, seed=seed):
     """Trả về dict {'train','val','test'} -> (list[str] texts, LongTensor labels)."""
     from datasets import load_dataset
 
