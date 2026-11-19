@@ -1,0 +1,2 @@
+model,backbone,accuracy,precision_macro,recall_macro,f1_macro,train_time_s,inference_time_s,inference_ms_per_sample,trainable_params,total_params,model_size_mb,checkpoint_size_mb,best_val_accuracy,best_epoch,n_train,n_val,n_test,max_len,epochs,lr,batch_size,weight_decay,warmup_ratio,seed,device
+fine_tuning,distilbert-base-uncased,0.886,0.8872853572871591,0.8872747899389135,0.8871764970609055,836.6810283000013,41.35674889999973,41.35674889999973,66365956,66365956,253.16993713378906,253.20458889007568,0.8809999823570251,1,5000,1000,1000,64,1,2e-05,32,0.01,0.1,42,cpu
