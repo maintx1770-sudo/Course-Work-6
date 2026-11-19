@@ -13,7 +13,7 @@ Run from the repository root:
     python -m src.train                                                      # full run
 
 A quick test (any *_size given) writes to results/_quick_test/ so it can never
-overwrite the official files in results/metrics/ and results/checkpoints/.
+overwrite the official files in results/metrics/ and results/checkpoints/
 """
 from __future__ import annotations
 
