@@ -12,6 +12,7 @@ Tất cả các thay đổi đáng chú ý của dự án **Coursework Topic 6 �
   - TF-IDF + Logistic Regression
   - Frozen Encoder
   - Fine-Tuning
+- **Mô hình Transformer:** DistilBERT
 - **Các tiêu chí đánh giá:**
   - Accuracy
   - Precision
@@ -75,12 +76,12 @@ Tất cả các thay đổi đáng chú ý của dự án **Coursework Topic 6 �
 
 ### Đã thực hiện
 
-- Load pretrained Transformer.
+- Sử dụng pretrained DistilBERT.
 - Xây dựng Transformer model và Classification Head.
 - Thực hiện tokenization.
 - Freeze Transformer parameters.
 - Xây dựng và huấn luyện Frozen Encoder.
-- Evaluation Frozen Encoder.
+- Thực hiện Evaluation cho Frozen Encoder.
 - Lưu checkpoint và metrics.
 - Hoàn thiện:
   - `src/models.py`
@@ -99,7 +100,7 @@ Tất cả các thay đổi đáng chú ý của dự án **Coursework Topic 6 �
 ### Đã thực hiện
 
 - Xây dựng training pipeline cho Fine-Tuning.
-- Sử dụng pretrained Transformer.
+- Sử dụng pretrained DistilBERT.
 - Xây dựng Classification Head.
 - Chuẩn bị pipeline Fine-Tuning toàn bộ Transformer.
 - Hoàn thiện:
@@ -110,8 +111,9 @@ Tất cả các thay đổi đáng chú ý của dự án **Coursework Topic 6 �
 ### Trạng thái
 
 - Pipeline Fine-Tuning đã được xây dựng.
-- **Fine-Tuning chính thức trên toàn bộ dataset chưa hoàn thành.**
-- Kết quả Quick Test không được sử dụng làm kết quả chính thức của mô hình.
+- Fine-Tuning chính thức trên toàn bộ dataset **chưa hoàn thành**.
+- Kết quả Quick Test **không được sử dụng** làm kết quả chính thức của mô hình.
+- Chưa có Accuracy, Precision, Recall và Macro F1 chính thức cho Fine-Tuning.
 
 ---
 
@@ -119,18 +121,18 @@ Tất cả các thay đổi đáng chú ý của dự án **Coursework Topic 6 �
 
 ### Đã thực hiện
 
-- Xây dựng hệ thống Evaluation chung cho các mô hình.
+- Xây dựng hệ thống Evaluation chung cho các phương pháp.
 - Hoàn thiện:
   - `src/evaluate.py`
   - `src/compare.py`
   - `notebooks/05_comparison.ipynb`
   - `docs/research/evaluation_metrics.md`
-- Chuẩn hóa metrics giữa các phương pháp.
+- Chuẩn hóa cách tính metrics cho các phương pháp.
 - Tạo kết quả Evaluation cho Baseline và Frozen Encoder.
 - Tạo confusion matrix cho:
   - Baseline
   - Frozen Encoder
-- Chuẩn bị Comparison giữa các phương pháp.
+- Chuẩn bị Comparison cho các phương pháp đã hoàn thành.
 
 ### Kết quả đã tạo
 
@@ -141,7 +143,8 @@ Tất cả các thay đổi đáng chú ý của dự án **Coursework Topic 6 �
 
 ### Trạng thái
 
-- Comparison hiện chưa có kết quả Fine-Tuning chính thức do Fine-Tuning chưa hoàn thành.
+- Comparison hiện tại chỉ bao gồm các mô hình đã có kết quả chính thức.
+- Fine-Tuning chưa được đưa vào kết quả Comparison chính thức do chưa hoàn thành thực nghiệm.
 
 ---
 
@@ -163,7 +166,7 @@ Tất cả các thay đổi đáng chú ý của dự án **Coursework Topic 6 �
 
 ### Cập nhật kỹ thuật
 
-- `src/predict.py` được điều chỉnh để Fine-Tuning sử dụng checkpoint `fine_tuned_model.pt` được lưu bởi training pipeline.
+- `src/predict.py` đã được chuẩn bị để hỗ trợ prediction từ checkpoint Fine-Tuning sau khi mô hình được huấn luyện chính thức.
 
 ---
 
@@ -197,7 +200,8 @@ Tất cả các thay đổi đáng chú ý của dự án **Coursework Topic 6 �
 ## Fine-Tuning
 
 - Chuẩn bị pipeline chạy Fine-Tuning trên dataset chính thức.
-- **Chưa có kết quả Fine-Tuning chính thức.**
+- Kiểm tra khả năng thực thi của training pipeline.
+- Fine-Tuning chính thức trên toàn bộ dataset **chưa hoàn thành**.
 
 ## Evaluation & Comparison
 
@@ -227,8 +231,8 @@ Tất cả các thay đổi đáng chú ý của dự án **Coursework Topic 6 �
 
 | Model | Accuracy | Macro F1 | Trạng thái |
 |---|---:|---:|---|
-| TF-IDF + Logistic Regression | 91.80% | 91.78% | Hoàn thành |
-| Frozen Encoder | 90.34% | 90.32% | Hoàn thành |
+| TF-IDF + Logistic Regression | **91.80%** | **91.78%** | Hoàn thành |
+| Frozen Encoder | **90.34%** | **90.32%** | Hoàn thành |
 | Fine-Tuning | Chưa có | Chưa có | Đang chờ chạy chính thức |
 
 ---
@@ -248,8 +252,8 @@ Cần hoàn thành:
 - Tạo:
   - Fine-Tuning confusion matrix
 - Cập nhật:
-  - `evaluation_results.csv`
-  - `model_comparison.png`
+  - `results/metrics/evaluation_results.csv`
+  - `results/figures/model_comparison.png`
   - `docs/results/model_comparison.md`
   - `docs/results/error_analysis.md`
   - `report/report.md`
@@ -258,21 +262,26 @@ Cần hoàn thành:
 
 Sau khi Fine-Tuning hoàn thành:
 
-1. Kiểm tra toàn bộ pipeline.
-2. Kiểm tra ba phương pháp.
-3. Kiểm tra metrics.
-4. Kiểm tra confusion matrices.
-5. Kiểm tra comparison.
-6. Kiểm tra prediction.
-7. Kiểm tra README.
-8. Kiểm tra report.
-9. Kiểm tra repository trước khi submit.
+1. Kiểm tra toàn bộ Data Pipeline.
+2. Kiểm tra Baseline.
+3. Kiểm tra Frozen Encoder.
+4. Kiểm tra Fine-Tuning.
+5. Kiểm tra metrics của cả ba phương pháp.
+6. Kiểm tra confusion matrices.
+7. Cập nhật Model Comparison.
+8. Kiểm tra Error Analysis.
+9. Kiểm tra Prediction Pipeline.
+10. Kiểm tra README.
+11. Kiểm tra Report.
+12. Kiểm tra repository trước khi submit.
 
 ---
 
 # 2026-11-22 — Final Submission
 
-Dự kiến hoàn thiện:
+## Trạng thái dự kiến
+
+Dự kiến hoàn thiện toàn bộ Coursework theo flow:
 
 ```text
 Data
@@ -297,3 +306,29 @@ Final Repository
    ↓
 Submit
 ```
+
+### Các điều kiện cần hoàn thành trước khi Submit
+
+- Fine-Tuning chính thức có kết quả.
+- Có metrics cho cả ba phương pháp.
+- Có confusion matrix cho các mô hình.
+- Có Model Comparison đầy đủ.
+- Có Error Analysis tương ứng.
+- Prediction Pipeline hoạt động.
+- `report/report.md` được cập nhật.
+- README được kiểm tra và cập nhật.
+- Repository không chứa file tạm hoặc file không cần thiết.
+- Kiểm tra lại toàn bộ cấu trúc project trước khi nộp.
+
+### Trạng thái hiện tại
+
+- Baseline: **Hoàn thành**
+- Frozen Encoder: **Hoàn thành**
+- Fine-Tuning: **Chưa hoàn thành**
+- Evaluation: **Hoàn thành cho các mô hình đã có kết quả**
+- Comparison: **Đang chờ kết quả Fine-Tuning để hoàn thiện**
+- Error Analysis: **Đã thực hiện cho các mô hình đã có kết quả**
+- Prediction: **Đã chuẩn bị**
+- Final Report: **Đang hoàn thiện**
+- Final Integration: **Chưa hoàn thành**
+- Final Submission: **Chưa thực hiện**
