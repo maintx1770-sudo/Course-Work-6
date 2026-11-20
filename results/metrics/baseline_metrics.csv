@@ -1,0 +1,2 @@
+model,accuracy,precision_macro,recall_macro,f1_macro,train_time_s,inference_time_s,inference_ms_per_sample,trainable_params,model_size_mb,best_val_f1_macro,best_C,n_train,n_val,n_test,seed,device
+baseline,0.918026,0.917902,0.918026,0.917835,14.805586,0.34308,0.045142,200004,3.408657,0.9241,1.0,108000,12000,7600,42,cpu
