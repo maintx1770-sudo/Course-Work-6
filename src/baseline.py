@@ -16,6 +16,7 @@ import time
 from pathlib import Path
 
 import joblib
+import numpy as np
 import pandas as pd
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression
@@ -32,12 +33,12 @@ from src.data import LABEL_NAMES, SEED, load_splits  # shared split: 108,000 / 1
 
 ROOT = Path(__file__).resolve().parents[1]
 METRICS_PATH = ROOT / "results" / "metrics" / "baseline_metrics.csv"
-PREDICTIONS_PATH = ROOT / "results" / "metrics" / "baseline_test_predictions.csv"
+PREDICTIONS_PATH = ROOT / "results" / "metrics" / "baseline_predictions.csv"
 CKPT_DIR = ROOT / "results" / "checkpoints" / "baseline"
 MODEL_PATH = CKPT_DIR / "baseline_pipeline.joblib"
 CONFIG_PATH = CKPT_DIR / "config.json"
 
-C_GRID = [1.0, 5.0, 10.0]
+C_GRID = [0.25, 0.5, 1.0, 2.0, 5.0]  # C=1 was best at the edge of [1, 5, 10], so extend below 1
 
 
 # --------------------------------------------------------------------------- #
@@ -110,7 +111,7 @@ def evaluate(pipe: Pipeline, x_test, y_test) -> dict:
     }
 
 
-def save_outputs(pipe, best_C, fit_time, val_f1, result, x_test, y_test) -> pd.DataFrame:
+def save_outputs(pipe, best_C, fit_time, val_f1, result, x_test, y_test, n_train=None, n_val=None) -> pd.DataFrame:
     CKPT_DIR.mkdir(parents=True, exist_ok=True)
     METRICS_PATH.parent.mkdir(parents=True, exist_ok=True)
 
@@ -127,17 +128,30 @@ def save_outputs(pipe, best_C, fit_time, val_f1, result, x_test, y_test) -> pd.D
         "inference_ms_per_sample": result["inference_ms_per_sample"],
         "trainable_params": count_trainable_params(pipe),
         "model_size_mb": model_size_mb(MODEL_PATH),
+        "best_val_f1_macro": val_f1,
+        "best_C": best_C,
+        "n_train": n_train,
+        "n_val": n_val,
+        "n_test": len(x_test),
+        "seed": SEED,
+        "device": "cpu",
     }
     metrics = pd.DataFrame([row])
     metrics.to_csv(METRICS_PATH, index=False)
 
     proba = pipe.predict_proba(x_test)
+    y_true = np.asarray(y_test)
+    y_pred = np.asarray(result["y_pred"])
+    # Same columns as frozen_encoder_predictions.csv and fine_tuning_predictions.csv
     pd.DataFrame(
         {
             "text": x_test,
-            "true_label": y_test,
-            "pred_label": result["y_pred"],
+            "true_label": y_true,
+            "pred_label": y_pred,
+            "true_name": [LABEL_NAMES[i] for i in y_true],
+            "pred_name": [LABEL_NAMES[i] for i in y_pred],
             "confidence": proba.max(axis=1),
+            "correct": y_true == y_pred,
         }
     ).to_csv(PREDICTIONS_PATH, index=False)
 
@@ -147,6 +161,7 @@ def save_outputs(pipe, best_C, fit_time, val_f1, result, x_test, y_test) -> pd.D
                 "best_C": best_C,
                 "val_macro_f1": val_f1,
                 "seed": SEED,
+                "c_grid": C_GRID,
                 "tfidf": {"ngram_range": [1, 2], "max_features": 50000, "min_df": 2, "sublinear_tf": True},
                 "label_names": LABEL_NAMES,
             },
@@ -165,7 +180,7 @@ def run(splits: dict | None = None) -> pd.DataFrame:
 
     pipe, best_C, fit_time, val_f1 = train(x_tr, y_tr, x_val, y_val)
     result = evaluate(pipe, x_te, y_te)
-    metrics = save_outputs(pipe, best_C, fit_time, val_f1, result, x_te, y_te)
+    metrics = save_outputs(pipe, best_C, fit_time, val_f1, result, x_te, y_te, len(x_tr), len(x_val))
 
     print("\n=== Baseline (test set) ===")
     print(metrics.T.to_string(header=False))
