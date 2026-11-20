@@ -3,7 +3,7 @@
 Chạy tại thư mục gốc Course-Work-6:
     python -m src.predict --model baseline --text "The team won the final match."
     python -m src.predict --model frozen_encoder --text "New chip technology was announced."
-    python -m src.predict --model fine_tuning --checkpoint results/checkpoints/fine_tuning --text "Stocks rose today."
+    python -m src.predict --model fine_tuning --text "Stocks rose today."
     python -m src.predict --model baseline          # nhập liên tục từ bàn phím
 
 Lưu ý: cần huấn luyện và lưu checkpoint trước khi dự đoán.
@@ -23,7 +23,7 @@ ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_CHECKPOINTS = {
     "baseline": ROOT / "results/checkpoints/baseline/baseline_pipeline.joblib",
     "frozen_encoder": ROOT / "results/checkpoints/frozen_encoder/frozen_encoder_head.pt",
-    "fine_tuning": ROOT / "results/checkpoints/fine_tuning",
+    "fine_tuning": ROOT / "results/checkpoints/fine_tuning/fine_tuned_model.pt",
 }
 
 
@@ -31,7 +31,7 @@ class NewsPredictor:
     """Tải mô hình một lần và dự đoán nhiều văn bản tin tức.
 
     model_type: 'baseline', 'frozen_encoder' hoặc 'fine_tuning'.
-    Fine-Tuning yêu cầu thư mục model đã lưu bằng save_pretrained().
+    Fine-Tuning dùng checkpoint .pt do src/train.py lưu (fine_tuned_model.pt).
     """
 
     def __init__(
@@ -82,17 +82,13 @@ class NewsPredictor:
             self.model.eval()
 
         else:  # fine_tuning
-            from transformers import AutoModelForSequenceClassification, AutoTokenizer
+            # train.py lưu checkpoint dạng .pt (state_dict + metadata), không phải save_pretrained().
+            from src.train import load_model
 
-            if not self.checkpoint.is_dir() or not (self.checkpoint / "config.json").exists():
-                raise FileNotFoundError(
-                    "Fine-Tuning cần thư mục đã lưu bằng save_pretrained() "
-                    "(có config.json và trọng số mô hình). "
-                    "Hãy dùng --checkpoint trỏ tới đúng thư mục đó."
-                )
-            self.tokenizer = AutoTokenizer.from_pretrained(self.checkpoint)
-            self.model = AutoModelForSequenceClassification.from_pretrained(self.checkpoint)
-            self.model = self.model.to(self.device).eval()
+            self.model, self.tokenizer, self.max_length = load_model(
+                self.checkpoint, device=self.device
+            )
+            self.model.eval()
 
     def predict(self, text: str) -> dict[str, Any]:
         """Trả về ID, tên lớp, confidence và xác suất cả bốn lớp."""
@@ -120,10 +116,8 @@ class NewsPredictor:
             )
             inputs = {key: value.to(self.device) for key, value in inputs.items()}
             with torch.inference_mode():
-                if self.model_type == "frozen_encoder":
-                    logits = self.model(inputs["input_ids"], inputs["attention_mask"])
-                else:
-                    logits = self.model(**inputs).logits
+                # frozen_encoder và fine_tuning đều là nn.Module(input_ids, attention_mask) -> logits
+                logits = self.model(inputs["input_ids"], inputs["attention_mask"])
                 probabilities = torch.softmax(logits, dim=-1)[0].cpu().tolist()
             scores = {i: float(prob) for i, prob in enumerate(probabilities)}
             class_id = max(scores, key=scores.get)
