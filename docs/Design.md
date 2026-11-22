@@ -94,6 +94,61 @@ Dự đoán
 - **Hàm mất mát:** Cross-Entropy Loss.
 - **Các lớp đầu ra:** World, Sports, Business và Sci/Tech.
 
+
+## 2.0. Yêu cầu phân tích và ra quyết định
+
+Thiết kế phải thể hiện được mối liên hệ giữa quan sát thực nghiệm và quyết định kỹ thuật:
+
+| Giai đoạn | Bằng chứng cần thu thập | Quyết định cần trả lời |
+|---|---|---|
+| EDA | Missing/empty, duplicate, class distribution, token length | Preprocessing, split, input và `max_len` |
+| Training Monitoring | Train loss/accuracy, validation loss/accuracy theo epoch | Có overfitting không? Chọn checkpoint nào? Có cần đổi cấu hình không? |
+| Evaluation | Accuracy, Precision, Recall, Macro F1, confusion matrix, time, params, size | Mô hình mạnh ở đâu? Chi phí nào đáng kể? |
+| Error Analysis | Wrong samples, class pairs, confidence, nội dung mẫu | Lỗi có pattern gì? Do mô hình hay do dữ liệu? Cần cải thiện gì? |
+| Comparison | Performance + cost + error behavior | Mô hình nào phù hợp nhất và vì sao? |
+
+Các quyết định phải dựa trên kết quả thực nghiệm của chính project; không dùng kết quả Quick Test thay cho kết quả chính thức.
+
+## 2.1. Quy trình ra quyết định kỹ thuật
+
+Thiết kế của hệ thống không dừng ở việc chạy ba mô hình mà sử dụng kết quả của từng giai đoạn để đưa ra quyết định cho giai đoạn tiếp theo:
+
+```text
+EDA
+  ↓
+Observation
+  ↓
+Decision về dữ liệu / preprocessing / max_len
+  ↓
+Training + Validation Monitoring
+  ↓
+Interpretation
+  ↓
+Decision về checkpoint / cấu hình huấn luyện
+  ↓
+Test Evaluation
+  ↓
+Interpretation về performance + cost
+  ↓
+Error Analysis
+  ↓
+Decision về hạn chế / nguyên nhân lỗi
+  ↓
+Model Comparison
+  ↓
+Final Model Decision
+```
+
+### Nguyên tắc
+
+- **EDA → Decision:** mọi lựa chọn về dữ liệu, preprocessing và sequence length phải có căn cứ từ EDA.
+- **Training Monitoring → Decision:** checkpoint được chọn dựa trên validation, không dựa trên test.
+- **Evaluation → Interpretation:** mỗi metric phải được giải thích về ý nghĩa đối với bài toán, không chỉ liệt kê giá trị.
+- **Error Analysis → Decision:** lỗi phải được nhóm theo pattern/class pair và dùng để xác định hạn chế hoặc hướng cải thiện.
+- **Comparison → Final Decision:** mô hình cuối được chọn dựa trên performance, computational cost và error behavior.
+
+Quy trình này giúp thể hiện phần phân tích và quyết định kỹ thuật của nhóm thay vì chỉ trình bày kết quả chạy code.
+
 ## 2. Các module
 
 ### Module 1 – Phân loại chủ đề tin tức
@@ -569,3 +624,17 @@ Cần ghi lại random seed, tên mô hình, hyperparameter, cách chia dữ li�
 ### Rủi ro 8 – Dung lượng file lớn trên GitHub
 
 Dữ liệu lớn và checkpoint có dung lượng lớn không nên đưa trực tiếp lên repository. Các file này cần được đưa vào `.gitignore` và README cần mô tả cách chuẩn bị hoặc tải dữ liệu khi cần.
+
+
+## 4. Decision Evidence Checklist
+
+Trước khi kết luận, nhóm phải kiểm tra đủ bốn chuỗi bằng chứng sau:
+
+| Chuỗi | Bằng chứng tối thiểu | Kết luận cần ghi |
+|---|---|---|
+| EDA → Decision | Missing/duplicate, class distribution, token coverage | Vì sao giữ/xử lý dữ liệu và chọn `max_len` |
+| Training Monitoring → Decision | Train/validation loss + accuracy theo epoch | Có overfitting không, best epoch nào, vì sao chọn checkpoint |
+| Evaluation → Interpretation | Metrics + confusion matrix + cost | Mô hình mạnh/yếu ở đâu và trade-off là gì |
+| Error Analysis → Decision | Class pair + wrong samples + nguyên nhân | Pattern lỗi nào quan trọng và cần cải thiện gì |
+
+**Nguyên tắc:** nếu một quyết định không có bằng chứng từ kết quả chạy tương ứng, không trình bày quyết định đó như một kết luận thực nghiệm.
