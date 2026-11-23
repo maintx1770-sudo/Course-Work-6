@@ -3,28 +3,77 @@
 
 ## 1. Giới thiệu
 
-Course Work 6 xây dựng hệ thống **phân loại chủ đề tin tức (News Topic Classification)** sử dụng các mô hình học máy và học sâu dựa trên **Transformer**.
+Course Work 6 xây dựng hệ thống **phân loại chủ đề tin tức (News Topic Classification)** trên tập dữ liệu **AG News**, sử dụng các phương pháp Machine Learning và Transformer-based Deep Learning.
 
-Hệ thống sử dụng tập dữ liệu **AG News** để phân loại các bài báo thành 4 nhóm chủ đề:
+Hệ thống phân loại bài báo thành 4 nhóm:
 
 - **World**
 - **Sports**
 - **Business**
 - **Sci/Tech**
 
-Project tập trung so sánh ba phương pháp:
+Project thực hiện và so sánh ba phương pháp:
 
 1. **TF-IDF + Logistic Regression** – Baseline truyền thống.
-2. **Frozen Encoder** – đóng băng các tham số của Transformer và chỉ huấn luyện Classification Head.
-3. **Fine-Tuning** – huấn luyện đồng thời Transformer và Classification Head trên tập dữ liệu AG News.
+2. **Frozen Encoder** – đóng băng Transformer Encoder và chỉ huấn luyện Classification Head.
+3. **Fine-Tuning** – cho phép cập nhật cả Transformer Encoder và Classification Head.
 
-Mô hình Transformer được sử dụng trong project là **DistilBERT (`distilbert-base-uncased`)**.
+Mô hình Transformer được sử dụng là:
 
-Mục tiêu của project là đánh giá sự khác biệt giữa các phương pháp về **hiệu năng phân loại** và **chi phí tính toán**.
+```text
+distilbert-base-uncased
+```
+
+Mục tiêu của project không chỉ là so sánh Accuracy mà còn phân tích:
+
+- Classification Performance
+- Training Cost
+- Inference Cost
+- Trainable Parameters
+- Model Size
+- Error Behavior
+
+Toàn bộ quá trình được thực hiện theo flow:
+
+```text
+Problem Analysis
+      ↓
+Requirements
+      ↓
+EDA
+      ↓
+Decision
+      ↓
+Model Selection
+      ↓
+Training
+      ↓
+Training Monitoring
+      ↓
+Evaluation
+      ↓
+Error Analysis
+      ↓
+Model Comparison
+      ↓
+Final Technical Decision
+```
 
 ---
 
-## 2. Mục tiêu
+# 2. Vấn đề và câu hỏi nghiên cứu
+
+Các nền tảng tin tức trực tuyến phải xử lý một lượng lớn bài báo mỗi ngày. Việc phân loại thủ công tốn thời gian và nhân lực.
+
+Project xây dựng hệ thống có khả năng tự động dự đoán chủ đề của một bài báo dựa trên nội dung văn bản.
+
+### Câu hỏi nghiên cứu
+
+> Việc sử dụng Transformer theo hai cách tiếp cận Frozen Encoder và Fine-Tuning khác nhau như thế nào về hiệu năng phân loại và chi phí tính toán so với Baseline TF-IDF + Logistic Regression trong bài toán phân loại chủ đề AG News?
+
+---
+
+# 3. Mục tiêu
 
 Project hướng đến các mục tiêu:
 
@@ -35,16 +84,18 @@ Project hướng đến các mục tiêu:
 - Xây dựng và thực nghiệm Fine-Tuning.
 - So sánh hiệu quả của ba phương pháp.
 - Đánh giá mô hình bằng các chỉ số định lượng.
-- Phân tích sự cân bằng giữa hiệu năng phân loại và chi phí tính toán.
-- Thực hiện Prediction và Error Analysis.
+- Theo dõi quá trình training và validation.
+- Phân tích các lỗi dự đoán.
+- Phân tích trade-off giữa hiệu năng và chi phí tính toán.
+- Đưa ra quyết định lựa chọn mô hình dựa trên bằng chứng thực nghiệm.
 
 ---
 
-## 3. Dataset
+# 4. Dataset
 
-### 3.1 AG News
+## 4.1. AG News
 
-Project sử dụng dataset **AG News** cho bài toán phân loại chủ đề tin tức.
+Project sử dụng dataset **AG News** thông qua Hugging Face Datasets.
 
 Dataset gồm 4 lớp:
 
@@ -55,11 +106,26 @@ Dataset gồm 4 lớp:
 | 2 | Business |
 | 3 | Sci/Tech |
 
-### 3.2 Input
+Dataset ban đầu gồm:
+
+- Training: 120,000 mẫu
+- Test: 7,600 mẫu
+
+Training set được chia thành:
+
+- Training: 108,000 mẫu
+- Validation: 12,000 mẫu
+- Test: 7,600 mẫu
+
+Test set được giữ riêng và chỉ sử dụng cho đánh giá cuối cùng.
+
+---
+
+## 4.2. Input
 
 Input của hệ thống là văn bản tin tức.
 
-Dữ liệu được sử dụng trong project gồm trường:
+Pipeline hiện tại sử dụng:
 
 ```text
 text
@@ -69,15 +135,17 @@ label
 Trong đó:
 
 - `text`: nội dung bài báo.
-- `label`: nhãn chủ đề của bài báo.
+- `label`: nhãn chủ đề.
 
-### 3.3 Output
+---
+
+## 4.3. Output
 
 Hệ thống trả về:
 
-- Chủ đề dự đoán.
-- Nhãn dự đoán.
-- Xác suất dự đoán của các lớp khi mô hình hỗ trợ probability output.
+- Predicted Category
+- Predicted Label
+- Probability của các lớp khi model hỗ trợ probability output.
 
 Ví dụ:
 
@@ -87,17 +155,16 @@ Manchester United won the match 3-1.
 
 Output:
 Predicted Category: Sports
+Predicted Label: 1
 ```
 
 ---
 
-## 4. Phương pháp
+# 5. Phương pháp
 
-Project sử dụng ba phương pháp để thực nghiệm và so sánh.
+## 5.1. Baseline – TF-IDF + Logistic Regression
 
-### 4.1 Baseline
-
-Baseline sử dụng:
+Pipeline:
 
 ```text
 Text
@@ -109,15 +176,11 @@ Logistic Regression
 Prediction
 ```
 
-TF-IDF được sử dụng để biểu diễn văn bản dưới dạng vector đặc trưng.
-
-Logistic Regression được sử dụng làm mô hình phân loại.
-
-Baseline đóng vai trò là mô hình tham chiếu để đánh giá mức cải thiện của các phương pháp Transformer.
+Baseline được sử dụng làm mô hình tham chiếu để xác định mức hiệu năng có thể đạt được bằng phương pháp Machine Learning truyền thống.
 
 ---
 
-### 4.2 Frozen Encoder
+## 5.2. Frozen Encoder
 
 Frozen Encoder sử dụng pretrained **DistilBERT**.
 
@@ -141,20 +204,21 @@ Prediction
 
 Trong phương pháp này:
 
-- DistilBERT được sử dụng làm pretrained encoder.
+- DistilBERT được sử dụng làm pretrained Encoder.
 - Các tham số của Transformer được **freeze**.
 - Chỉ Classification Head được huấn luyện.
-- Encoder tạo representation cho văn bản.
-- Mean Pooling được sử dụng để tổng hợp representation từ `last_hidden_state`.
+- Mean Pooling được sử dụng để tổng hợp `last_hidden_state`.
 - Classification Head thực hiện phân loại thành 4 lớp.
-
-Mục tiêu của Frozen Encoder là đánh giá khả năng sử dụng representation có sẵn từ pretrained Transformer với chi phí huấn luyện thấp hơn so với Fine-Tuning.
 
 ---
 
-### 4.3 Fine-Tuning
+## 5.3. Fine-Tuning
 
-Fine-Tuning sử dụng cùng pretrained model **DistilBERT**.
+Fine-Tuning sử dụng cùng pretrained model:
+
+```text
+distilbert-base-uncased
+```
 
 Pipeline:
 
@@ -163,51 +227,334 @@ Input Text
     ↓
 Tokenizer
     ↓
-DistilBERT
+DistilBERT Encoder
     ↓
-Classification Head
+Mean Pooling
+    ↓
+Dropout
+    ↓
+Linear Classification Head
     ↓
 Prediction
 ```
 
 Trong phương pháp này:
 
-- Các tham số của DistilBERT được phép cập nhật.
+- Transformer Encoder được phép cập nhật tham số.
 - Classification Head được huấn luyện.
-- Toàn bộ mô hình được tối ưu trên dataset AG News.
-
-Fine-Tuning nhằm đánh giá khả năng thích nghi của pretrained Transformer với bài toán phân loại chủ đề tin tức.
+- Toàn bộ mô hình được tối ưu trên AG News.
 
 ---
 
-## 5. Evaluation
+# 6. EDA và quyết định kỹ thuật
 
-Các phương pháp được đánh giá trên cùng quy trình thực nghiệm và tập dữ liệu kiểm tra.
+EDA được thực hiện trước khi huấn luyện để kiểm tra chất lượng dữ liệu và hỗ trợ lựa chọn cấu hình.
 
-### 5.1 Classification Metrics
+Các nội dung kiểm tra:
 
-Các chỉ số chính:
+- Missing values
+- Empty text
+- Duplicate
+- Class distribution
+- Text length
+- Token length
 
-- **Accuracy**
-- **Precision**
-- **Recall**
-- **Macro F1-score**
-- **Confusion Matrix**
+Kết quả EDA:
 
-### 5.2 Computational Metrics
+| Kiểm tra | Kết quả |
+|---|---:|
+| Train | 108,000 |
+| Validation | 12,000 |
+| Test | 7,600 |
+| Missing | 0 |
+| Empty | 0 |
+| Duplicate – Train | 62 |
+| Duplicate – Validation | 3 |
+| Duplicate – Test | 0 |
 
-Ngoài hiệu năng phân loại, project đánh giá:
+## 6.1. Token coverage
 
-- **Training Time**
-- **Inference Time**
-- **Trainable Parameters**
-- **Model Size**
+Kết quả khảo sát:
 
-Các chỉ số này được sử dụng để phân tích trade-off giữa hiệu năng và chi phí tính toán.
+| Max Length | Token Coverage |
+|---:|---:|
+| 64 | 87.41% |
+| 128 | 99.42% |
+| 256 | 99.97% |
+
+### Decision
+
+Project sử dụng:
+
+```text
+max_length = 64
+```
+
+Đây là quyết định dựa trên trade-off giữa:
+
+- Chi phí tính toán.
+- Mức độ giữ lại thông tin của văn bản.
+
+`64` có chi phí thấp hơn nhưng có mức truncation cao hơn `128` và `256`.
+
+Do đó, `64` được xem là **cấu hình thực nghiệm được lựa chọn**, không phải kết luận rằng đây là giá trị tối ưu tuyệt đối.
+
+Nếu thay đổi `max_length`, các thí nghiệm Transformer cần được chạy lại để đảm bảo tính công bằng.
 
 ---
 
-## 6. Cấu trúc thư mục
+# 7. Training Monitoring
+
+Training được theo dõi trên validation set theo từng epoch.
+
+Các chỉ số quan sát:
+
+- Training Loss
+- Validation Loss
+- Training Accuracy
+- Validation Accuracy
+- Validation Macro F1
+
+Mục tiêu:
+
+1. Phát hiện overfitting.
+2. Xác định epoch tốt nhất.
+3. Chọn checkpoint.
+4. Đánh giá độ ổn định của quá trình training.
+5. Hỗ trợ quyết định về training configuration.
+
+Quy trình:
+
+```text
+Training
+   ↓
+Training Metrics
+   ↓
+Validation Metrics
+   ↓
+Best Validation Checkpoint
+   ↓
+Final Test Evaluation
+```
+
+**Test set không được sử dụng để lựa chọn checkpoint hoặc hyperparameter.**
+
+Đối với Fine-Tuning, checkpoint tốt nhất được xác định tại **epoch 2** dựa trên validation performance.
+
+---
+
+# 8. Evaluation
+
+## 8.1. Classification Metrics
+
+Các mô hình được đánh giá bằng:
+
+- Accuracy
+- Precision
+- Recall
+- Macro F1-score
+- Confusion Matrix
+
+## 8.2. Computational Metrics
+
+Project ghi nhận:
+
+- Training Time
+- Inference Time
+- Trainable Parameters
+- Model Size
+
+Các chỉ số này được sử dụng để phân tích trade-off giữa performance và computational cost.
+
+---
+
+# 9. Kết quả thực nghiệm
+
+Các kết quả dưới đây là **kết quả thực nghiệm chính thức** trên test set 7,600 mẫu.
+
+| Model | Accuracy | Macro F1 |
+|---|---:|---:|
+| TF-IDF + Logistic Regression | 91.96% | 91.94% |
+| Frozen Encoder | 90.29% | 90.28% |
+| **Fine-Tuning** | **94.22%** | **94.23%** |
+
+Fine-Tuning đạt:
+
+- Accuracy: **94.22%**
+- Macro F1: **94.23%**
+- Macro Precision: **94.24%**
+- Macro Recall: **94.22%**
+
+Fine-Tuning sử dụng:
+
+| Parameter | Value |
+|---|---|
+| Model | `distilbert-base-uncased` |
+| Learning Rate | `2e-5` |
+| Batch Size | `32` |
+| Epochs | `3` |
+| Max Length | `64` |
+| Optimizer | AdamW |
+| Device | CUDA |
+| Best Epoch | 2 |
+| Random Seed | 42 |
+
+Thời gian huấn luyện Fine-Tuning khoảng:
+
+```text
+2353 seconds ≈ 39.2 minutes
+```
+
+---
+
+# 10. Error Analysis
+
+Error Analysis được thực hiện sau Evaluation.
+
+Quy trình:
+
+```text
+Confusion Matrix
+      ↓
+Class Pair
+      ↓
+Wrong Samples
+      ↓
+Confidence
+      ↓
+Content Analysis
+      ↓
+Cause Classification
+      ↓
+Decision
+```
+
+Các nguyên nhân được xem xét:
+
+### Model-driven
+
+Nội dung có tín hiệu rõ cho nhãn thật nhưng mô hình chọn nhãn khác.
+
+### Topic overlap
+
+Nội dung có đặc điểm của nhiều chủ đề.
+
+Đặc biệt cần chú ý:
+
+```text
+Business ↔ Sci/Tech
+```
+
+### Short / Low-context
+
+Văn bản quá ngắn hoặc thiếu thông tin cần thiết.
+
+### Possible Label Ambiguity / Noise
+
+Nhãn gốc có thể không hoàn toàn phản ánh nội dung.
+
+Error Analysis được sử dụng để:
+
+- xác định pattern lỗi;
+- giải thích nguyên nhân;
+- đánh giá hạn chế của mô hình;
+- hỗ trợ lựa chọn mô hình cuối cùng.
+
+Chi tiết được trình bày tại:
+
+```text
+docs/results/error_analysis.md
+```
+
+---
+
+# 11. Model Comparison
+
+Ba phương pháp được so sánh:
+
+```text
+TF-IDF + Logistic Regression
+          vs
+Frozen Encoder
+          vs
+Fine-Tuning
+```
+
+Việc so sánh dựa trên:
+
+### Classification Performance
+
+- Accuracy
+- Precision
+- Recall
+- Macro F1
+
+### Computational Cost
+
+- Training Time
+- Inference Time
+- Trainable Parameters
+- Model Size
+
+### Error Behavior
+
+- Confusion Matrix
+- Class Pair
+- Representative Wrong Samples
+- Error Pattern
+
+Chi tiết:
+
+```text
+docs/results/model_comparison.md
+```
+
+---
+
+# 12. Final Technical Decision
+
+Kết quả chính thức cho thấy:
+
+```text
+Fine-Tuning     94.22%
+Baseline        91.96%
+Frozen Encoder  90.29%
+```
+
+Fine-Tuning đạt hiệu năng cao nhất.
+
+### Decision
+
+> **Fine-Tuning được lựa chọn là phương pháp có hiệu năng phân loại tốt nhất trong phạm vi thực nghiệm của project.**
+
+Cơ sở quyết định:
+
+1. Accuracy cao nhất: **94.22%**.
+2. Macro F1 cao nhất: **94.23%**.
+3. Cao hơn Baseline và Frozen Encoder.
+4. Việc cập nhật Transformer giúp mô hình thích nghi tốt hơn với nhiệm vụ phân loại AG News.
+
+Tuy nhiên, Fine-Tuning có chi phí tính toán cao hơn Frozen Encoder.
+
+Do đó, quyết định cuối cùng được dựa trên:
+
+```text
+Classification Performance
+        +
+Computational Cost
+        +
+Error Analysis
+        +
+Experimental Evidence
+```
+
+Nếu ưu tiên hiệu năng phân loại, Fine-Tuning là lựa chọn phù hợp.
+
+Nếu ưu tiên chi phí tính toán thấp hơn, Baseline hoặc Frozen Encoder có thể được cân nhắc tùy yêu cầu triển khai.
+
+---
+
+# 13. Cấu trúc thư mục
 
 ```text
 Course-Work-6/
@@ -221,7 +568,6 @@ Course-Work-6/
 ├── docs/
 │   ├── Define.md
 │   ├── Design.md
-│   │
 │   ├── research/
 │   │   ├── ag_news.md
 │   │   ├── tfidf_logistic_regression.md
@@ -255,28 +601,10 @@ Course-Work-6/
 │
 ├── results/
 │   ├── metrics/
-│   │   ├── baseline_metrics.csv
-│   │   ├── frozen_encoder_metrics.csv
-│   │   ├── fine_tuning_metrics.csv
-│   │   ├── evaluation_results.csv
-│   │   └── test_predictions.csv
-│   │
 │   ├── figures/
-│   │   ├── confusion_matrix_baseline.png
-│   │   ├── confusion_matrix_frozen_encoder.png
-│   │   ├── confusion_matrix_fine_tuning.png
-│   │   └── model_comparison.png
-│   │
 │   └── checkpoints/
-│       ├── frozen_encoder/
-│       └── fine_tuning/
 │
 ├── tests/
-│   ├── test_data.py
-│   ├── test_models.py
-│   ├── test_training.py
-│   ├── test_evaluation.py
-│   └── test_pipeline.py
 │
 └── report/
     ├── report.md
@@ -284,39 +612,22 @@ Course-Work-6/
     └── presentation.pdf
 ```
 
-### Mô tả các thư mục
-
-#### `docs/`
-
-Chứa tài liệu phân tích, nghiên cứu, thiết kế và tổng hợp kết quả.
-
-```text
-docs/
-├── Define.md
-├── Design.md
-├── research/
-│   ├── ag_news.md
-│   ├── tfidf_logistic_regression.md
-│   ├── frozen_encoder.md
-│   ├── fine_tuning.md
-│   └── evaluation_metrics.md
-└── results/
-    ├── error_analysis.md
-    └── model_comparison.md
-```
-
-- `Define.md`: Xác định bài toán, đối tượng sử dụng, input/output, phạm vi, constraints và evaluation criteria.
-- `Design.md`: Mô tả kiến trúc hệ thống, modules, data flow, interfaces, milestones và technical risks.
-- `research/`: Chứa các tài liệu nghiên cứu liên quan đến AG News, TF-IDF + Logistic Regression, Frozen Encoder, Fine-Tuning và evaluation metrics.
-- `results/`: Chứa các tài liệu phân tích kết quả.
-  - `error_analysis.md`: Phân tích các mẫu dự đoán sai và các trường hợp dễ nhầm.
-  - `model_comparison.md`: Tổng hợp và phân tích kết quả so sánh giữa các phương pháp.
-
 ---
 
-#### `data/`
+# 14. Mô tả các thư mục
 
-Chứa dữ liệu được sử dụng trong project.
+## `docs/`
+
+Chứa tài liệu phân tích, nghiên cứu, thiết kế và kết quả.
+
+- `Define.md`: Xác định vấn đề, yêu cầu, input/output, constraints và tiêu chí thành công.
+- `Design.md`: Mô tả kiến trúc, pipeline, modules, training, evaluation và decision process.
+- `research/`: Tài liệu nghiên cứu.
+- `results/`: Phân tích kết quả.
+
+## `data/`
+
+Chứa dữ liệu:
 
 ```text
 data/
@@ -324,144 +635,72 @@ data/
 └── processed/
 ```
 
-- `raw/`: Dữ liệu gốc hoặc dữ liệu được tải về.
-- `processed/`: Dữ liệu sau preprocessing nếu project cần lưu dưới dạng file.
+Dataset không bắt buộc phải commit toàn bộ vào repository.
 
-> Dataset AG News được sử dụng thông qua pipeline dữ liệu của project. Không bắt buộc phải commit toàn bộ dataset vào repository.
+## `src/`
 
----
+Chứa source code chính:
 
-#### `src/`
+| File | Vai trò |
+|---|---|
+| `data.py` | Load và chuẩn bị dữ liệu |
+| `baseline.py` | TF-IDF + Logistic Regression |
+| `models.py` | Transformer và Classification Head |
+| `train.py` | Training pipeline |
+| `evaluate.py` | Evaluation |
+| `compare.py` | Model comparison |
+| `predict.py` | Prediction |
 
-Chứa source code chính của project.
+## `notebooks/`
 
-```text
-src/
-├── data.py
-├── baseline.py
-├── models.py
-├── train.py
-├── evaluate.py
-├── compare.py
-└── predict.py
-```
+| Notebook | Vai trò |
+|---|---|
+| `01_data_exploration.ipynb` | EDA |
+| `02_baseline.ipynb` | Baseline |
+| `03_frozen_encoder.ipynb` | Frozen Encoder |
+| `04_fine_tuning.ipynb` | Fine-Tuning |
+| `05_comparison.ipynb` | Evaluation + Comparison |
 
-- `data.py`: Load và chuẩn bị dữ liệu AG News.
-- `baseline.py`: Xây dựng Baseline sử dụng TF-IDF + Logistic Regression.
-- `models.py`: Định nghĩa các thành phần model Transformer và Classification Head.
-- `train.py`: Xây dựng training pipeline cho Frozen Encoder và Fine-Tuning.
-- `evaluate.py`: Tính toán metrics và đánh giá mô hình.
-- `compare.py`: Tổng hợp và so sánh kết quả giữa Baseline, Frozen Encoder và Fine-Tuning.
-- `predict.py`: Thực hiện prediction trên dữ liệu mới hoặc dữ liệu kiểm tra.
+## `results/`
 
----
+Chứa:
 
-#### `notebooks/`
+- Metrics
+- Predictions
+- Confusion Matrix
+- Training curves
+- Checkpoints
 
-Chứa các notebook phục vụ quá trình khám phá dữ liệu và thực nghiệm.
+## `tests/`
 
-```text
-notebooks/
-├── 01_data_exploration.ipynb
-├── 02_baseline.ipynb
-├── 03_frozen_encoder.ipynb
-├── 04_fine_tuning.ipynb
-└── 05_comparison.ipynb
-```
+Chứa các test cho:
 
-- `01_data_exploration.ipynb`: Load, khám phá và kiểm tra dữ liệu AG News.
-- `02_baseline.ipynb`: Xây dựng và thực nghiệm TF-IDF + Logistic Regression.
-- `03_frozen_encoder.ipynb`: Thực nghiệm Frozen Encoder.
-- `04_fine_tuning.ipynb`: Thực nghiệm Fine-Tuning.
-- `05_comparison.ipynb`: Tổng hợp và so sánh kết quả của ba phương pháp.
+- Data loading
+- Model loading
+- Training
+- Evaluation
+- Integration
 
----
+## `report/`
 
-#### `results/`
+Chứa:
 
-Lưu các kết quả thực nghiệm được tạo trong quá trình chạy project.
-
-```text
-results/
-├── metrics/
-│   ├── baseline_metrics.csv
-│   ├── frozen_encoder_metrics.csv
-│   ├── fine_tuning_metrics.csv
-│   ├── evaluation_results.csv
-│   └── test_predictions.csv
-│
-├── figures/
-│   ├── confusion_matrix_baseline.png
-│   ├── confusion_matrix_frozen_encoder.png
-│   ├── confusion_matrix_fine_tuning.png
-│   └── model_comparison.png
-│
-└── checkpoints/
-    ├── frozen_encoder/
-    └── fine_tuning/
-```
-
-- `metrics/`: Lưu Accuracy, Precision, Recall, Macro F1-score, Training Time, Inference Time, Trainable Parameters và Model Size.
-- `figures/`: Lưu confusion matrix, biểu đồ so sánh và các hình ảnh trực quan hóa kết quả.
-- `checkpoints/`: Lưu các checkpoint của mô hình Transformer trong quá trình thực nghiệm.
-
-Các file `.csv`, `.png` và checkpoint trong `results/` được tạo trong quá trình chạy thực nghiệm. Khi mới tạo repository, có thể sử dụng `.gitkeep` để giữ cấu trúc thư mục.
+- Report
+- PDF report
+- Presentation
 
 ---
 
-#### `tests/`
+# 15. Cài đặt
 
-Chứa các test phục vụ kiểm tra từng module và toàn bộ pipeline.
-
-```text
-tests/
-├── test_data.py
-├── test_models.py
-├── test_training.py
-├── test_evaluation.py
-└── test_pipeline.py
-```
-
-Các test giúp kiểm tra:
-
-- Data loading.
-- Model loading.
-- Training pipeline.
-- Evaluation.
-- Prediction.
-- Integration giữa các module.
-
----
-
-#### `report/`
-
-Chứa các phiên bản cuối của báo cáo và presentation.
-
-```text
-report/
-├── report.md
-├── report.pdf
-└── presentation.pdf
-```
-
-- `report.md`: Source của báo cáo.
-- `report.pdf`: Báo cáo Coursework bản cuối.
-- `presentation.pdf`: Slide presentation của project.
-
-Các file báo cáo cuối sẽ được tạo sau khi nội dung và kết quả thực nghiệm hoàn tất.
-
----
-
-## 7. Cài đặt
-
-### Clone repository
+## Clone repository
 
 ```bash
 git clone https://github.com/maintx1770-sudo/Course-Work-6.git
 cd Course-Work-6
 ```
 
-### Cài đặt thư viện
+## Cài đặt thư viện
 
 ```bash
 pip install -r requirements.txt
@@ -469,58 +708,146 @@ pip install -r requirements.txt
 
 ---
 
-## 8. Quy trình thực hiện
+# 16. Quy trình chạy project
+
+Các notebook được thực hiện theo thứ tự:
+
+### Step 1 – Data Exploration
 
 ```text
-AG News Dataset
-      ↓
-Data Exploration
-      ↓
-Preprocessing
-      ↓
-      ├───────────────┐
-      ↓               ↓
-   Baseline      Transformer
-      │               │
-      │       ┌───────┴───────┐
-      │       ↓               ↓
-      │ Frozen Encoder    Fine-Tuning
-      │       │               │
-      └───────┴───────┬───────┘
-                      ↓
-                  Evaluation
-                      ↓
-                  Comparison
-                      ↓
-                Prediction
-                      ↓
-                Error Analysis
-                      ↓
-                 Final Report
+01_data_exploration.ipynb
 ```
 
+Thực hiện:
+
+- Load data
+- Data quality check
+- Class distribution
+- Duplicate analysis
+- Token length analysis
+- EDA-based decisions
+
+### Step 2 – Baseline
+
+```text
+02_baseline.ipynb
+```
+
+Thực hiện:
+
+- TF-IDF
+- Logistic Regression
+- Validation
+- Test evaluation
+- Save metrics
+
+### Step 3 – Frozen Encoder
+
+```text
+03_frozen_encoder.ipynb
+```
+
+Thực hiện:
+
+- Load DistilBERT
+- Freeze Encoder
+- Mean Pooling
+- Train Classification Head
+- Validation monitoring
+- Test evaluation
+
+### Step 4 – Fine-Tuning
+
+```text
+04_fine_tuning.ipynb
+```
+
+Thực hiện:
+
+- Load DistilBERT
+- Train Encoder + Classification Head
+- Validation monitoring
+- Best checkpoint selection
+- Test evaluation
+
+### Step 5 – Comparison
+
+```text
+05_comparison.ipynb
+```
+
+Thực hiện:
+
+- Load official metrics
+- Compare three models
+- Generate confusion matrices
+- Generate comparison figures
+- Perform model comparison
+- Support final technical decision
+
 ---
 
-## 9. Tài liệu
+# 17. Quy trình ra quyết định
 
-Chi tiết về phân tích và thiết kế hệ thống:
+Project không chỉ thực hiện:
 
-- [Define](docs/Define.md)
-- [Design](docs/Design.md)
+```text
+Run Code → Get Result
+```
 
-Các tài liệu nghiên cứu:
+mà thực hiện:
 
-- [AG News](docs/research/ag_news.md)
-- [TF-IDF + Logistic Regression](docs/research/tfidf_logistic_regression.md)
-- [Frozen Encoder](docs/research/frozen_encoder.md)
-- [Fine-Tuning](docs/research/fine_tuning.md)
-- [Evaluation Metrics](docs/research/evaluation_metrics.md)
+```text
+EDA
+ ↓
+Observation
+ ↓
+Analysis
+ ↓
+Decision
+ ↓
+Training
+ ↓
+Validation Monitoring
+ ↓
+Evaluation
+ ↓
+Error Analysis
+ ↓
+Comparison
+ ↓
+Final Decision
+```
+
+### EDA → Decision
+
+Dữ liệu và token coverage được phân tích trước khi lựa chọn preprocessing và `max_length`.
+
+### Training Monitoring → Decision
+
+Validation performance được sử dụng để lựa chọn checkpoint.
+
+### Evaluation → Interpretation
+
+Metrics và Confusion Matrix được phân tích thay vì chỉ ghi nhận giá trị.
+
+### Error Analysis → Decision
+
+Các mẫu sai và class pair được phân tích để xác định pattern lỗi.
+
+### Comparison → Final Decision
+
+Mô hình được lựa chọn dựa trên:
+
+- Performance
+- Computational Cost
+- Error Behavior
 
 ---
 
-## 10. Kết quả
+# 18. Kết quả đầu ra
 
-Kết quả thực nghiệm được lưu trong:
+Các kết quả chính được lưu tại:
 
 ```text
 results/
@@ -529,32 +856,44 @@ results/
 Bao gồm:
 
 - Evaluation metrics
-- Confusion Matrix
-- Model comparison
 - Test predictions
-- Trained checkpoints
+- Confusion Matrix
+- Model comparison figures
+- Training results
+- Model checkpoints
 
-Kết quả cuối cùng sẽ được sử dụng để so sánh:
+Tài liệu phân tích:
 
 ```text
-TF-IDF + Logistic Regression
-          vs
-Frozen Encoder
-          vs
-Fine-Tuning
+docs/results/error_analysis.md
+docs/results/model_comparison.md
 ```
-
-về:
-
-- Classification performance.
-- Training cost.
-- Inference cost.
-- Number of trainable parameters.
-- Model size.
 
 ---
 
-## 11. Thành viên
+# 19. Tài liệu
+
+### Project Definition
+
+- [Define](docs/Define.md)
+- [Design](docs/Design.md)
+
+### Research
+
+- [AG News](docs/research/ag_news.md)
+- [TF-IDF + Logistic Regression](docs/research/tfidf_logistic_regression.md)
+- [Frozen Encoder](docs/research/frozen_encoder.md)
+- [Fine-Tuning](docs/research/fine_tuning.md)
+- [Evaluation Metrics](docs/research/evaluation_metrics.md)
+
+### Results
+
+- [Error Analysis](docs/results/error_analysis.md)
+- [Model Comparison](docs/results/model_comparison.md)
+
+---
+
+# 20. Thành viên
 
 | Họ và tên | MSSV | Vai trò |
 |---|---|---|
@@ -567,16 +906,45 @@ về:
 
 ---
 
-## 12. Kết luận
+# 21. Kết luận
 
-Project xây dựng hệ thống **News Topic Classification** sử dụng dataset **AG News** và mô hình **DistilBERT**.
+Project xây dựng hệ thống **News Topic Classification** sử dụng dataset **AG News** và pretrained model **DistilBERT**.
 
-Ba phương pháp được thực nghiệm và so sánh gồm:
+Ba phương pháp được thực nghiệm:
 
 1. **TF-IDF + Logistic Regression**
 2. **Frozen Encoder**
 3. **Fine-Tuning**
 
-Thông qua thực nghiệm, project đánh giá không chỉ khả năng phân loại mà còn xem xét **chi phí huấn luyện, chi phí suy luận, số lượng tham số có thể huấn luyện và kích thước mô hình**.
+Kết quả chính thức cho thấy **Fine-Tuning đạt hiệu năng tốt nhất** trong phạm vi thực nghiệm hiện tại với:
 
-Kết quả thực nghiệm, comparison và error analysis được sử dụng để đánh giá ưu điểm, hạn chế và trade-off giữa các phương pháp.
+```text
+Accuracy = 94.22%
+Macro F1 = 94.23%
+```
+
+Tuy nhiên, Fine-Tuning yêu cầu chi phí tính toán cao hơn. Vì vậy, lựa chọn mô hình cuối cùng phải xem xét đồng thời **classification performance, computational cost và error behavior**.
+
+Project được thiết kế theo hướng:
+
+```text
+Problem
+  ↓
+EDA
+  ↓
+Decision
+  ↓
+Experiment
+  ↓
+Monitoring
+  ↓
+Evaluation
+  ↓
+Error Analysis
+  ↓
+Comparison
+  ↓
+Technical Decision
+```
+
+Qua đó, kết quả cuối cùng không chỉ trả lời **“mô hình nào có Accuracy cao nhất?”** mà còn trả lời **“vì sao chọn mô hình đó và bằng chứng thực nghiệm nào hỗ trợ quyết định?”**
