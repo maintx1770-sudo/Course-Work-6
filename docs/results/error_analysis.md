@@ -1,30 +1,53 @@
 # Phân tích lỗi (Error Analysis)
 
-> **Phạm vi:** Baseline (TF-IDF + LR) và Frozen Encoder (DistilBERT). Phần Fine-Tuning sẽ bổ sung sau khi có `fine_tuning_predictions.csv` chính thức (mục 6).
-> Dữ liệu: dự đoán trên tập test AG News (7.600 mẫu). Baseline dùng `baseline_test_predictions.csv`, khớp với `baseline_metrics.csv`.
+> **Phạm vi:** Phân tích lỗi của ba phương pháp: Baseline (TF-IDF + Logistic Regression), Frozen Encoder (DistilBERT) và Fine-Tuning (DistilBERT).  
+> **Dữ liệu:** Tập test AG News gồm 7.600 mẫu, cân bằng 1.900 mẫu cho mỗi lớp: World, Sports, Business và Sci/Tech.  
+> **Nguyên tắc:** Error Analysis được thực hiện theo quy trình **Confusion Matrix → Class Pair → Representative Samples → Cause → Decision**.
+
+---
 
 ## 1. Tổng quan
 
-| Mô hình | Số mẫu sai | Accuracy | Độ tin cậy TB (đúng) | Độ tin cậy TB (sai) | Sai nhưng tin cậy > 0,9 |
-|---|---:|---:|---:|---:|---:|
-| Baseline | 623 | 0,9180 | 0,877 | 0,653 | 87 |
-| Frozen Encoder | 734 | 0,9034 | 0,925 | 0,713 | 163 |
+Ba phương pháp được đánh giá trên cùng tập test 7.600 mẫu. Kết quả tổng hợp cho thấy Fine-Tuning đạt hiệu năng cao nhất, tiếp theo là Baseline và cuối cùng là Frozen Encoder.
 
-- 464 mẫu bị **cả hai** mô hình đoán sai; 159 mẫu chỉ Baseline sai; 270 mẫu chỉ Frozen Encoder sai. Phần lớn lỗi là các mẫu "khó thật" chứ không phải lỗi riêng của một phương pháp.
-- Frozen Encoder đưa ra nhiều dự đoán sai với độ tin cậy rất cao (163 mẫu > 0,9), nghĩa là độ tin cậy của nó kém hiệu chỉnh hơn Baseline.
+| Mô hình | Accuracy | Macro F1 | Trainable Parameters |
+|---|---:|---:|---:|
+| Baseline | 0,9196 | 0,9194 | 200.004 |
+| Frozen Encoder | 0,9029 | 0,9028 | 3.076 |
+| **Fine-Tuning** | **0,9422** | **0,9423** | **66.365.956** |
 
-## 2. Hiệu năng theo từng lớp (F1)
+Fine-Tuning cải thiện Accuracy khoảng 2,26 điểm phần trăm so với Baseline và khoảng 3,93 điểm phần trăm so với Frozen Encoder. Kết quả này cho thấy việc cập nhật toàn bộ tham số của DistilBERT giúp mô hình thích nghi tốt hơn với đặc trưng của bài toán phân loại tin tức AG News.
 
-| Lớp | Baseline | Frozen Encoder |
+Tuy nhiên, Accuracy tổng thể không đủ để giải thích nguyên nhân lỗi. Vì vậy, nhóm tiếp tục phân tích theo từng lớp, từng cặp nhãn và các mẫu dự đoán sai tiêu biểu.
+
+---
+
+## 2. Hiệu năng theo từng lớp
+
+Kết quả Classification Report của Baseline và Frozen Encoder cho thấy Sports là lớp dễ phân biệt nhất, trong khi Business và Sci/Tech khó hơn.
+
+| Lớp | Baseline F1 | Frozen Encoder F1 |
 |---|---:|---:|
-| World | 0,9201 | 0,9073 |
-| Sports | 0,9653 | 0,9717 |
-| Business | 0,8864 | 0,8612 |
-| Sci/Tech | 0,8996 | 0,8728 |
+| World | 0,9218 | 0,9039 |
+| Sports | 0,9670 | 0,9708 |
+| Business | 0,8879 | 0,8617 |
+| Sci/Tech | 0,9011 | 0,8748 |
 
-Sports dễ nhất ở cả hai mô hình (từ vựng thể thao rất đặc trưng; Frozen Encoder thậm chí nhỉnh hơn Baseline). Business và Sci/Tech khó nhất.
+### Interpretation
+
+- **Sports** có F1 cao nhất ở cả Baseline và Frozen Encoder. Các bài viết thể thao thường chứa những từ khóa và ngữ cảnh đặc trưng như tên vận động viên, đội bóng, giải đấu hoặc kết quả thi đấu.
+- **Business** và **Sci/Tech** khó phân biệt hơn vì nhiều bài viết có nội dung giao thoa giữa công nghệ, doanh nghiệp, sản phẩm và thị trường.
+- Frozen Encoder giảm hiệu năng đáng kể ở Business và Sci/Tech so với Baseline. Điều này cho thấy biểu diễn DistilBERT khi không được điều chỉnh theo AG News chưa đủ phù hợp để tách các lớp có nội dung giao nhau.
+
+### Decision
+
+Nhóm không đánh giá mô hình chỉ dựa trên Accuracy tổng thể mà tiếp tục kiểm tra riêng các lớp Business và Sci/Tech trong Error Analysis. Đây là các lớp cần được ưu tiên khi đánh giá khả năng cải thiện của Fine-Tuning.
+
+---
 
 ## 3. Các cặp lớp hay bị nhầm
+
+Đối với Baseline và Frozen Encoder, các cặp nhầm lẫn nổi bật gồm:
 
 | Nhầm (thật → đoán) | Baseline | Frozen Encoder |
 |---|---:|---:|
@@ -35,62 +58,219 @@ Sports dễ nhất ở cả hai mô hình (từ vựng thể thao rất đặc t
 | Business → World | 56 | 69 |
 | Sci/Tech → World | 46 | 62 |
 
-Cặp **Business ↔ Sci/Tech** chiếm tỉ lệ lỗi lớn nhất ở cả hai mô hình (Baseline: 269/623 ≈ 43%; Frozen Encoder: 352/734 ≈ 48%). Frozen Encoder tệ hơn rõ rệt ở chiều Sci/Tech → Business (197 so với 118).
+Cặp **Business ↔ Sci/Tech** là pattern lỗi nổi bật nhất.
 
-## 4. Nguyên nhân có thể và ví dụ
-
-1. **Chủ đề giao nhau (Business ↔ Sci/Tech).** Tin về công ty công nghệ vừa là tin kinh doanh vừa là tin công nghệ.
-   - "Intel to delay product aimed for high-definition TVs…" (nhãn Business, bị đoán Sci/Tech, tin cậy 0,94).
-   - "Storage, servers bruise HP earnings update…" (nhãn Sci/Tech, bị đoán Business, tin cậy 0,69).
-2. **World bị kéo sang Business/Sports/Sci/Tech.** World là lớp "rộng": tin quốc tế có thể nói về kinh tế, thể thao hay khoa học.
-   - "India's Tata expands regional footprint via NatSteel buyout…" (World → Business).
-   - "Producer Price Surge Fuels Inflation Fears…" (World → Business, tin cậy 0,997).
-   - "Argentina Basketball Coach Magnano Quits…" (World → Sports, tin cậy 0,996).
-   - "Mars water tops science honours…" (World → Sci/Tech, tin cậy 0,998).
-3. **Nhãn gốc mơ hồ hoặc nhiễu.** Nhiều mẫu bị cả hai mô hình sai với độ tin cậy gần 1 mà nội dung thật sự khớp với nhãn dự đoán hơn (ví dụ tin về Phil Knight/Nike gán Business nhưng nói về giày thể thao và vận động viên, bị đoán Sports). Đây là giới hạn của dữ liệu, không hẳn là lỗi mô hình.
-4. **Văn bản ngắn/thiếu ngữ cảnh** (chỉ tiêu đề + một câu) làm cả TF-IDF lẫn encoder thiếu tín hiệu.
-5. **Nhiễu định dạng:** các thực thể HTML (`#39;`, `quot;`), dấu `\`, nguồn tin trong ngoặc như "(Reuters) Reuters -" có thể gây nhiễu nhẹ dù `clean_text` đã xử lý phần lớn.
-
-## 5. Hạn chế của từng phương pháp
-
-- **Baseline (TF-IDF + LR):** không hiểu ngữ nghĩa/ngữ cảnh, chỉ dựa trên sự xuất hiện của từ và cụm hai từ; dễ sai khi bài báo dùng từ vựng của lớp khác (ví dụ tin công ty công nghệ dùng nhiều từ tài chính). Ưu điểm là nhanh và gọn.
-- **Frozen Encoder:** đặc trưng DistilBERT không được điều chỉnh cho miền tin tức và chỉ có head tuyến tính nhỏ, nên không tách tốt các lớp giao nhau; tốn thời gian trích xuất đặc trưng; nhiều dự đoán sai tin cậy cao.
-
-## 6. Việc cần bổ sung (Fine-Tuning)
-
-Sau khi có `results/metrics/fine_tuning_predictions.csv` (chạy chính thức), chạy lại `05_comparison.ipynb` rồi bổ sung: số mẫu sai, ma trận nhầm lẫn mới (`confusion_matrix_fine_tuning.png`), các cặp lớp còn nhầm và so sánh với hai phương pháp trên. Cần kiểm tra giả thuyết: fine-tuning có giảm lỗi Business ↔ Sci/Tech hay không, hay đây chủ yếu là nhiễu nhãn của dữ liệu.
-
-
-## 7.1. Cách nhóm phân biệt nguyên nhân lỗi
-
-Khi xem một mẫu sai, nhóm không được kết luận ngay rằng mô hình yếu. Mẫu được phân loại theo thứ tự:
-
-1. **Model-driven:** nội dung có tín hiệu rõ cho nhãn thật nhưng mô hình chọn nhãn khác.
-2. **Topic-overlap:** nội dung hợp lý với cả hai lớp, đặc biệt `Business ↔ Sci/Tech`.
-3. **Short/low-context:** văn bản quá ngắn hoặc thiếu ngữ cảnh để phân biệt chủ đề.
-4. **Possible label ambiguity/noise:** nhãn gốc có thể không phản ánh hoàn toàn nội dung.
-
-Chỉ sau bước này nhóm mới đưa ra decision về kiến trúc hoặc dữ liệu. Điều này giúp tránh quy toàn bộ lỗi cho mô hình khi nguyên nhân thực tế nằm ở độ giao nhau của chủ đề hoặc chất lượng nhãn.
-
-## 7. Error Analysis → Interpretation → Decision
+- Baseline có 269 lỗi ở hai chiều Business ↔ Sci/Tech.
+- Frozen Encoder có 352 lỗi ở hai chiều này.
+- Frozen Encoder đặc biệt yếu ở chiều **Sci/Tech → Business**, với 197 lỗi so với 118 lỗi của Baseline.
 
 ### Interpretation
 
-Kết quả cho thấy lỗi tập trung mạnh ở cặp **Business ↔ Sci/Tech**. Với Baseline, hai chiều này tạo ra 269/623 lỗi; với Frozen Encoder là 352/734 lỗi. Điều này cho thấy đây không chỉ là một số ít outlier mà là một pattern có hệ thống trong bài toán. Sports là lớp dễ phân biệt nhất, trong khi Business và Sci/Tech khó hơn.
-
-Ngoài ra, việc có các mẫu sai với confidence rất cao cho thấy không nên dùng confidence của mô hình như một bằng chứng duy nhất để khẳng định dự đoán đúng. Các mẫu có nội dung giao nhau hoặc nhãn gốc mơ hồ cần được kiểm tra bằng nội dung thực tế.
-
-### Evidence → Decision
-
-Các quyết định dưới đây phải dựa trực tiếp trên số lỗi theo class pair và các mẫu sai đại diện, thay vì chỉ dựa trên Accuracy tổng.
+Kết quả cho thấy lỗi không phân bố ngẫu nhiên mà tập trung ở những cặp lớp có nội dung ngữ nghĩa giao nhau. Do đó, việc chỉ báo cáo số mẫu sai tổng cộng sẽ không giải thích được nguyên nhân mô hình thất bại.
 
 ### Decision
 
-1. Khi đánh giá Fine-Tuning, nhóm phải kiểm tra riêng cặp Business ↔ Sci/Tech để xác định fine-tuning có thực sự giảm pattern lỗi này hay không.
-2. Khi phân tích một mô hình, không chỉ báo cáo số lỗi tổng mà phải xem **class pair + mẫu văn bản + nguyên nhân**.
-3. Các lỗi do chủ đề giao nhau hoặc nhãn mơ hồ được xem là giới hạn của dữ liệu; không tự động quy kết toàn bộ lỗi cho kiến trúc mô hình.
-4. Nếu Fine-Tuning giảm đáng kể các lỗi Business ↔ Sci/Tech mà không làm tăng mạnh lỗi ở các lớp khác, đó là bằng chứng hỗ trợ quyết định sử dụng Fine-Tuning. Nếu không, nhóm phải cân nhắc lại trade-off giữa hiệu năng và chi phí tính toán.
+Nhóm sử dụng **class pair analysis** thay vì chỉ dựa trên Accuracy để đánh giá mô hình. Đối với Fine-Tuning, cặp Business ↔ Sci/Tech được xem là pattern lỗi cần kiểm tra đầu tiên để xác định liệu việc mở khóa Transformer có thực sự giải quyết được vấn đề này hay không.
 
-### 8. Quy tắc bổ sung sau Fine-Tuning chính thức
+---
 
-Sau khi có `fine_tuning_predictions.csv`, cập nhật lại toàn bộ bảng lỗi và thực hiện cùng một quy trình: **Confusion Matrix → Class Pair → Representative Samples → Cause → Decision**. Không dùng kết quả Quick Test 0,25 làm kết quả nghiên cứu chính thức.
+## 4. Phân tích nguyên nhân lỗi
+
+### 4.1. Chủ đề giao nhau: Business ↔ Sci/Tech
+
+Tin tức về các công ty công nghệ thường đồng thời chứa thông tin về sản phẩm, doanh thu, lợi nhuận hoặc thị trường. Vì vậy, một bài viết có thể hợp lý với cả Business và Sci/Tech.
+
+Ví dụ:
+
+- “Intel to delay product aimed for high-definition TVs…” — nhãn Business nhưng bị đoán Sci/Tech.
+- “Storage, servers bruise HP earnings update…” — nội dung liên quan đồng thời đến công nghệ và kết quả kinh doanh.
+
+Đây là trường hợp **topic-overlap**, không thể tự động xem là lỗi hoàn toàn do kiến trúc mô hình.
+
+---
+
+### 4.2. World là lớp có phạm vi rộng
+
+World có thể chứa các sự kiện quốc tế liên quan đến kinh tế, thể thao hoặc khoa học.
+
+Ví dụ:
+
+- “India's Tata expands regional footprint via NatSteel buyout…” — World → Business.
+- “Producer Price Surge Fuels Inflation Fears…” — World → Business.
+- “Argentina Basketball Coach Magnano Quits…” — World → Sports.
+- “Mars water tops science honours…” — World → Sci/Tech.
+
+Những trường hợp này cho thấy một bài viết có thể chứa tín hiệu mạnh của một lớp khác mặc dù nhãn gốc thuộc World.
+
+---
+
+### 4.3. Nhãn gốc có thể không hoàn toàn phản ánh nội dung
+
+Một số mẫu bị cả hai mô hình dự đoán sai với độ tin cậy cao nhưng nội dung thực tế lại phù hợp với nhãn dự đoán.
+
+Ví dụ, một bài viết được gán Business nhưng tập trung nhiều vào giày thể thao và vận động viên có thể bị mô hình dự đoán Sports.
+
+Đây là trường hợp cần xem xét khả năng **label ambiguity/noise** thay vì kết luận ngay rằng mô hình yếu.
+
+---
+
+### 4.4. Văn bản ngắn và thiếu ngữ cảnh
+
+Một số bài báo chỉ có tiêu đề hoặc rất ít nội dung. Khi đó, cả TF-IDF và Transformer đều có thể thiếu đủ thông tin để xác định chủ đề.
+
+Đây là nguyên nhân thuộc nhóm **short/low-context**.
+
+---
+
+### 4.5. Nhiễu định dạng
+
+Một số văn bản chứa các thành phần như:
+
+- HTML entities (`#39;`, `quot;`);
+- ký tự đặc biệt;
+- thông tin nguồn như `(Reuters) Reuters -`.
+
+`clean_text` đã xử lý phần lớn nhiễu nhưng một số dấu vết định dạng vẫn có thể ảnh hưởng nhẹ đến biểu diễn văn bản.
+
+---
+
+## 5. Quy trình phân loại nguyên nhân lỗi
+
+Để tránh quy toàn bộ lỗi cho mô hình, nhóm phân loại từng mẫu sai theo thứ tự:
+
+1. **Model-driven:** nội dung có tín hiệu rõ cho nhãn thật nhưng mô hình chọn nhãn khác.
+2. **Topic-overlap:** nội dung hợp lý với nhiều lớp, đặc biệt Business ↔ Sci/Tech.
+3. **Short/low-context:** văn bản quá ngắn hoặc thiếu thông tin.
+4. **Possible label ambiguity/noise:** nhãn gốc có thể không phản ánh hoàn toàn nội dung.
+
+Chỉ sau bước phân loại này nhóm mới đưa ra quyết định về mô hình hoặc dữ liệu.
+
+Cách tiếp cận này giúp phân biệt giữa:
+
+```text
+Model Error
+```
+
+và
+
+```text
+Data / Task Difficulty
+```
+
+thay vì xem mọi prediction sai đều là bằng chứng cho thấy kiến trúc mô hình chưa tốt.
+
+---
+
+## 6. Phân tích Fine-Tuning
+
+Fine-Tuning đạt:
+
+- **Accuracy = 0,9422**
+- **Macro Precision = 0,9424**
+- **Macro Recall = 0,9422**
+- **Macro F1 = 0,9423**
+
+Kết quả này cao hơn cả Baseline và Frozen Encoder.
+
+Trong `05_comparison.ipynb`, Fine-Tuning được sử dụng để tiếp tục phân tích các prediction sai và các cặp nhãn nhầm lẫn. Kết quả tổng hợp cho thấy:
+
+- Tổng thể Fine-Tuning có ít lỗi hơn hai phương pháp còn lại.
+- Business ↔ Sci/Tech vẫn là pattern lỗi quan trọng.
+- Theo phân tích trong notebook, Baseline có 260 lỗi ở cặp Business ↔ Sci/Tech, trong khi Fine-Tuning có 243 lỗi, tương ứng giảm khoảng **6,5%**.
+- Các cặp lỗi khác giảm từ 345 xuống 196, tương ứng khoảng **43%**.
+
+Tuy nhiên, tỷ trọng của Business ↔ Sci/Tech trong tổng số lỗi tăng từ khoảng 43% lên khoảng **55%** khi Fine-Tuning làm giảm mạnh các nhóm lỗi khác. Vì vậy, việc tỷ trọng tăng không có nghĩa Fine-Tuning làm cặp lỗi này tệ hơn; số lỗi tuyệt đối vẫn giảm.
+
+### Interpretation
+
+Fine-Tuning không loại bỏ hoàn toàn lỗi Business ↔ Sci/Tech. Điều này phù hợp với bản chất của AG News, trong đó một số bài viết có chủ đề giao thoa và có thể hợp lý với nhiều nhãn.
+
+Mặt khác, việc giảm các nhóm lỗi khác cho thấy Fine-Tuning cải thiện khả năng phân loại tổng thể thay vì chỉ tối ưu một cặp lớp.
+
+### Decision
+
+Nhóm lựa chọn Fine-Tuning làm mô hình cuối cùng vì:
+
+1. đạt Accuracy và Macro F1 cao nhất;
+2. giảm tổng số lỗi so với Baseline và Frozen Encoder;
+3. giảm lỗi ở nhiều class pair khác;
+4. cải thiện khả năng biểu diễn ngữ cảnh nhờ cập nhật toàn bộ Transformer.
+
+Đối với Business ↔ Sci/Tech, nhóm xem đây chủ yếu là **giới hạn của dữ liệu và sự giao thoa chủ đề**, thay vì tiếp tục tăng độ phức tạp kiến trúc chỉ để xử lý riêng một pattern lỗi.
+
+---
+
+## 7. Confidence và các mẫu dự đoán sai
+
+Một số mẫu sai có confidence cao. Điều này cho thấy confidence không nên được sử dụng như bằng chứng duy nhất để khẳng định prediction là đúng.
+
+Đặc biệt, các mẫu thuộc nhóm:
+
+- topic-overlap;
+- label ambiguity/noise;
+- short/low-context
+
+có thể khiến mô hình đưa ra prediction với confidence cao mặc dù nhãn dự đoán khác nhãn gốc.
+
+### Decision
+
+Nhóm không sử dụng confidence đơn lẻ để tự động loại bỏ hoặc chấp nhận prediction. Các prediction có confidence cao nhưng sai cần được xem xét cùng với:
+
+```text
+Prediction
+→ True Label
+→ Text
+→ Class Pair
+→ Cause
+```
+
+Cách này phù hợp hơn với mục tiêu Error Analysis vì confidence chỉ phản ánh mức độ chắc chắn của mô hình đối với prediction, không chứng minh rằng nhãn gốc chắc chắn đúng.
+
+---
+
+## 8. Error Analysis → Interpretation → Decision
+
+### Interpretation
+
+Error Analysis cho thấy lỗi tập trung vào một số pattern có hệ thống, đặc biệt là **Business ↔ Sci/Tech**. Baseline và Frozen Encoder đều gặp khó khăn ở hai lớp này, trong đó Frozen Encoder có số lỗi Sci/Tech → Business cao hơn đáng kể.
+
+Fine-Tuning giảm số lỗi tổng thể và đạt hiệu năng cao nhất. Đồng thời, Fine-Tuning cũng giảm lỗi ở Business ↔ Sci/Tech so với Baseline, mặc dù pattern này vẫn là một trong những nguồn lỗi chính.
+
+Các lỗi còn lại có thể xuất phát từ:
+
+- sự giao thoa giữa các chủ đề;
+- văn bản ngắn hoặc thiếu ngữ cảnh;
+- nhãn gốc có khả năng mơ hồ;
+- nhiễu định dạng văn bản.
+
+### Evidence → Decision
+
+Các quyết định được đưa ra dựa trên:
+
+1. Accuracy và Macro F1 trên cùng tập test;
+2. Classification Report theo từng lớp;
+3. Confusion Matrix;
+4. số lượng lỗi theo class pair;
+5. các mẫu prediction sai tiêu biểu;
+6. nguyên nhân của từng nhóm lỗi.
+
+### Final Decision
+
+**Fine-Tuning được chọn làm mô hình cuối cùng.**
+
+Baseline được giữ làm **phương án dự phòng khi tài nguyên tính toán hạn chế**, vì mô hình có hiệu năng khá cao với chi phí huấn luyện và kích thước mô hình thấp.
+
+Frozen Encoder **không được lựa chọn** vì đạt hiệu năng thấp hơn Baseline nhưng vẫn phải sử dụng DistilBERT và có chi phí trích xuất đặc trưng lớn hơn.
+
+---
+
+## 9. Hạn chế của Error Analysis
+
+Error Analysis hiện tại vẫn có một số hạn chế:
+
+- Một số nguyên nhân lỗi được suy luận từ nội dung mẫu nên chưa thể khẳng định tuyệt đối.
+- Topic-overlap và label ambiguity cần được kiểm tra thủ công trên nhiều mẫu hơn để xác nhận.
+- Confidence của các mô hình được tạo từ các cơ chế khác nhau nên không nên so sánh trực tiếp như một thước đo calibration nếu chưa thực hiện calibration analysis.
+- Chi phí training của ba mô hình được đo trên các thiết bị khác nhau, vì vậy không dùng thời gian training tuyệt đối để kết luận mô hình nào “nhanh hơn” nếu không kiểm soát cùng phần cứng.
+
+Do đó, kết luận chính được dựa trên **hiệu năng trên cùng tập test, pattern lỗi và trade-off giữa chất lượng và chi phí**, thay vì chỉ dựa trên một chỉ số riêng lẻ.
