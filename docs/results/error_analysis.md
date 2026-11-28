@@ -51,18 +51,18 @@ Nhóm không đánh giá mô hình chỉ dựa trên Accuracy tổng thể mà t
 
 | Nhầm (thật → đoán) | Baseline | Frozen Encoder |
 |---|---:|---:|
-| Business → Sci/Tech | 151 | 155 |
-| Sci/Tech → Business | 118 | 197 |
-| World → Business | 75 | 98 |
-| World → Sports | 61 | 60 |
-| Business → World | 56 | 69 |
-| Sci/Tech → World | 46 | 62 |
+| Business → Sci/Tech | 147 | 164 |
+| Sci/Tech → Business | 120 | 180 |
+| World → Business | 70 | 103 |
+| World → Sports | 56 | 56 |
+| Business → World | 58 | 67 |
+| Sci/Tech → World | 42 | 68 |
 
 Cặp **Business ↔ Sci/Tech** là pattern lỗi nổi bật nhất.
 
-- Baseline có 269 lỗi ở hai chiều Business ↔ Sci/Tech.
-- Frozen Encoder có 352 lỗi ở hai chiều này.
-- Frozen Encoder đặc biệt yếu ở chiều **Sci/Tech → Business**, với 197 lỗi so với 118 lỗi của Baseline.
+- Baseline có 267 lỗi ở hai chiều Business ↔ Sci/Tech.
+- Frozen Encoder có 344 lỗi ở hai chiều này.
+- Frozen Encoder đặc biệt yếu ở chiều **Sci/Tech → Business**, với 180 lỗi so với 120 lỗi của Baseline.
 
 ### Interpretation
 
@@ -176,10 +176,13 @@ Trong `05_comparison.ipynb`, Fine-Tuning được sử dụng để tiếp tục
 
 - Tổng thể Fine-Tuning có ít lỗi hơn hai phương pháp còn lại.
 - Business ↔ Sci/Tech vẫn là pattern lỗi quan trọng.
-- Theo phân tích trong notebook, Baseline có 260 lỗi ở cặp Business ↔ Sci/Tech, trong khi Fine-Tuning có 243 lỗi, tương ứng giảm khoảng **6,5%**.
-- Các cặp lỗi khác giảm từ 345 xuống 196, tương ứng khoảng **43%**.
+- Theo phân tích trong notebook, Baseline có 267 lỗi ở cặp Business ↔ Sci/Tech, trong khi Fine-Tuning có 243 lỗi, tương ứng giảm khoảng **9,0%**.
+- Các cặp lỗi khác giảm từ 344 xuống 196, tương ứng khoảng **43%**.
 
-Tuy nhiên, tỷ trọng của Business ↔ Sci/Tech trong tổng số lỗi tăng từ khoảng 43% lên khoảng **55%** khi Fine-Tuning làm giảm mạnh các nhóm lỗi khác. Vì vậy, việc tỷ trọng tăng không có nghĩa Fine-Tuning làm cặp lỗi này tệ hơn; số lỗi tuyệt đối vẫn giảm.
+Tuy nhiên, tỷ trọng của Business ↔ Sci/Tech trong tổng số lỗi tăng từ khoảng 44% lên khoảng **55%** khi Fine-Tuning làm giảm mạnh các nhóm lỗi khác. Vì vậy, việc tỷ trọng tăng không có nghĩa Fine-Tuning làm cặp lỗi này tệ hơn; số lỗi tuyệt đối vẫn giảm.
+
+> **Lưu ý:** số liệu pair-count của Fine-Tuning (243 và 196) lấy từ lần chạy notebook 05 trước đó; repository hiện chưa lưu `fine_tuning_predictions.csv` nên chưa thể tái lập. Tổng 243 + 196 = 439 lỗi khớp với Accuracy chính thức 94,22%. Số liệu Baseline và Frozen Encoder ở trên được tính lại từ file prediction chính thức.
+
 
 ### Interpretation
 
