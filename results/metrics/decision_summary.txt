@@ -12,62 +12,61 @@ ERROR ANALYSIS -> DECISION
 ======================================================================
 
 --- Baseline (TF-IDF + LR) ---
-Sai 605/7600 (7.96%); Business<->Sci/Tech = 260 lỗi (43.0% tổng lỗi)
-Độ tin cậy TB: đúng 0.901 | sai 0.679 | sai nhưng >0,9: 112
-Top cặp nhầm (thật -> đoán): [('Business', 'Sci/Tech', 143), ('Sci/Tech', 'Business', 117), ('World', 'Business', 71), ('Business', 'World', 57), ('World', 'Sports', 56), ('World', 'Sci/Tech', 48)]
+Sai 611/7600 (8.04%); Business<->Sci/Tech = 267 lỗi (43.7% tổng lỗi)
+Độ tin cậy TB: đúng 0.899 | sai 0.676 | sai nhưng >0,9: 107
+Top cặp nhầm (thật -> đoán): [('Business', 'Sci/Tech', 147), ('Sci/Tech', 'Business', 120), ('World', 'Business', 70), ('Business', 'World', 58), ('World', 'Sports', 56), ('World', 'Sci/Tech', 47)]
               precision    recall  f1-score   support
 
-       World     0.9355    0.9079    0.9215      1900
-      Sports     0.9553    0.9784    0.9667      1900
-    Business     0.8938    0.8863    0.8901      1900
-    Sci/Tech     0.8967    0.9089    0.9028      1900
+       World     0.9350    0.9089    0.9218      1900
+      Sports     0.9548    0.9795    0.9670      1900
+    Business     0.8921    0.8837    0.8879      1900
+    Sci/Tech     0.8959    0.9063    0.9011      1900
 
-    accuracy                         0.9204      7600
-   macro avg     0.9203    0.9204    0.9203      7600
-weighted avg     0.9203    0.9204    0.9203      7600
+    accuracy                         0.9196      7600
+   macro avg     0.9195    0.9196    0.9194      7600
+weighted avg     0.9195    0.9196    0.9194      7600
 
 Tỉ lệ sai theo độ dài (số từ):
           n  err_pct
 b                   
 <=30   1553     11.7
 31-40  3365      7.1
-41-50  2176      6.2
-51-60   332      7.2
+41-50  2176      6.5
+51-60   332      7.5
 >60     174     13.8
 
 --- Frozen Encoder ---
-Sai 734/7600 (9.66%); Business<->Sci/Tech = 352 lỗi (48.0% tổng lỗi)
-Độ tin cậy TB: đúng 0.925 | sai 0.713 | sai nhưng >0,9: 163
-Top cặp nhầm (thật -> đoán): [('Sci/Tech', 'Business', 197), ('Business', 'Sci/Tech', 155), ('World', 'Business', 98), ('Business', 'World', 69), ('Sci/Tech', 'World', 62), ('World', 'Sports', 60)]
+Sai 738/7600 (9.71%); Business<->Sci/Tech = 344 lỗi (46.6% tổng lỗi)
+Độ tin cậy TB: đúng 0.923 | sai 0.717 | sai nhưng >0,9: 171
+Top cặp nhầm (thật -> đoán): [('Sci/Tech', 'Business', 180), ('Business', 'Sci/Tech', 164), ('World', 'Business', 103), ('Sci/Tech', 'World', 68), ('Business', 'World', 67), ('World', 'Sports', 56)]
               precision    recall  f1-score   support
 
-       World     0.9213    0.8937    0.9073      1900
-      Sports     0.9581    0.9858    0.9717      1900
-    Business     0.8461    0.8768    0.8612      1900
-    Sci/Tech     0.8887    0.8574    0.8728      1900
+       World     0.9148    0.8932    0.9039      1900
+      Sports     0.9613    0.9805    0.9708      1900
+    Business     0.8500    0.8737    0.8617      1900
+    Sci/Tech     0.8857    0.8642    0.8748      1900
 
-    accuracy                         0.9034      7600
-   macro avg     0.9036    0.9034    0.9032      7600
-weighted avg     0.9036    0.9034    0.9032      7600
+    accuracy                         0.9029      7600
+   macro avg     0.9029    0.9029    0.9028      7600
+weighted avg     0.9029    0.9029    0.9028      7600
 
 Tỉ lệ sai theo độ dài (số từ):
           n  err_pct
 b                   
-<=30   1566     13.1
-31-40  3413      8.6
-41-50  2130      7.9
-51-60   320     10.0
->60     171     21.1
+<=30   1553     13.0
+31-40  3365      8.8
+41-50  2176      8.0
+51-60   332      9.9
+>60     174     20.1
 
-Baseline vs Frozen: cùng sai 433, chỉ Baseline sai 172, chỉ Frozen sai 301; McNemar chi2 = 34.6 (>3,84 => khác biệt có ý nghĩa p<0,05)
+Baseline vs Frozen: cùng sai 437, chỉ Baseline sai 174, chỉ Frozen sai 301; McNemar chi2 = 33.4 (>3,84 => khác biệt có ý nghĩa p<0,05)
 CI 95% accuracy Baseline (TF-IDF + LR): ±0.61 điểm %
-CI 95% accuracy Frozen Encoder: ±0.66 điểm %
+CI 95% accuracy Frozen Encoder: ±0.67 điểm %
 
 ======================================================================
 TRAINING MONITORING -> DECISION
 ======================================================================
-baseline: val tốt nhất = 0.9258 | test accuracy = 0.9204 | chênh val-test = +0.54 điểm %
-frozen_encoder: val tốt nhất = 0.9104 | test accuracy = 0.9034 | chênh val-test = +0.70 điểm %
-  (chưa có frozen_encoder_history.csv -> chạy lại notebook 03 để lưu đường cong train/val)
+baseline: val tốt nhất = 0.9243 | test accuracy = 0.9196 | chênh val-test = +0.47 điểm % (val: macro F1)
+frozen_encoder: val tốt nhất = 0.9092 | test accuracy = 0.9029 | chênh val-test = +0.63 điểm % | best_epoch = 19/20
 fine_tuning: val tốt nhất = 0.9440 | test accuracy = 0.9422 | chênh val-test = +0.18 điểm % | best_epoch = 2/3
   (chưa có fine_tuning_history.csv -> chạy lại notebook 04 để lưu đường cong train/val)
